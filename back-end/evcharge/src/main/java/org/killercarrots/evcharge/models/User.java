@@ -18,9 +18,9 @@ public class User {
     @MongoId
     private String username;
     private String password;
-    private String FirstName;
-    private String LastName;
-    private String email;
+    //private String FirstName;
+    //private String LastName;
+    //private String email;
     //User roles ({User, Moderator, Admin, etc})
     private Set<Role> roles = new HashSet<>();
 

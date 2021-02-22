@@ -44,7 +44,7 @@ public class GeneralController {
     BCryptPasswordEncoder encoder;
 	
 	// Creates the ResponseEntity for the desired response object with the correct format type
-    public static ResponseEntity<String> buildResponse(MyAbstractObj obj, String format){//, String filename){
+    public static ResponseEntity<String> buildResponse(MyAbstractObj obj, String format){
         String body = null;
         HttpHeaders headers = new HttpHeaders();
         switch(format){
@@ -70,13 +70,13 @@ public class GeneralController {
 	}
 	
 	@GetMapping("/evcharge/user")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
 	public String userAccess() {
 		return "User Content.";
 	}
 
-	@GetMapping("/evcharge/mod")
-	@PreAuthorize("hasRole('MODERATOR')")
+	@GetMapping("/evcharge/operator")
+	@PreAuthorize("hasRole('OPERATOR')")
 	public String moderatorAccess() {
 		return "Moderator Board.";
 	}
@@ -94,7 +94,7 @@ public class GeneralController {
 			// So if you dont load them manually you can
 			// initialize the collection through resetsessions call
 			roleRepository.save(new Role(1, ERole.ROLE_USER));
-			roleRepository.save(new Role(2, ERole.ROLE_MODERATOR));
+			roleRepository.save(new Role(2, ERole.ROLE_OPERATOR));
 			roleRepository.save(new Role(3, ERole.ROLE_ADMIN));
 
 			// First reset admin user password and username
@@ -106,13 +106,13 @@ public class GeneralController {
 			adminUser.setToken(null);
 			adminUser.setRoles(roles);
 			userRepository.save(adminUser);
-			// Try to drop sessions collection in db
+			// TODO : Try to drop sessions collection in db
 			// *********NOT IMPLEMENTED YET*********
 		} catch (Exception e){
-			return buildResponse(new MessageResponse("failed", "status"), format);//, "status.csv");
+			return buildResponse(new MessageResponse("failed", "status"), format);
 		}
 		
-		return buildResponse(new MessageResponse("OK", "status"), format);//, "status.csv");
+		return buildResponse(new MessageResponse("OK", "status"), format);
 	}
 	
 }

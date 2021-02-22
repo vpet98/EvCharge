@@ -64,8 +64,7 @@ public class AuthController {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
-		// Needs better query login like update value token of user
-		// ***********************************************
+		// add active token to user in db
 		User user = userRepository.findById(loginRequest.getUsername()).get();
 		user.setToken(jwt);
 		userRepository.save(user);
@@ -74,18 +73,13 @@ public class AuthController {
 
 
 	@PostMapping("/evcharge/api/logout")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<?> logoutUser(@RequestParam(value = "format", defaultValue = "json") String format, HttpServletRequest request) {
+	@PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+	public ResponseEntity<?> logoutUser(Authentication auth, @RequestParam(value = "format", defaultValue = "json") String format, HttpServletRequest request) {
 		// Hence that authorization has already taken place
 		// so user and token are valid
-		// get token from header, decode and find username
 		// invalidate token in db by removing it
-		String headerAuth = request.getHeader(SecurityConstants.HEADER_STRING);
-		String jwt = headerAuth.substring(7, headerAuth.length());
-		String username = jwtUtils.getUserNameFromJwtToken(jwt);
-		// Find better logic for query ??????????????
-		// Maybe something like update field in user document
-		// ***********************************************
+		String username = auth.getName();
+		// delete token from user in dbs
 		User user = userRepository.findById(username).get();
 		user.setToken(null);
 		userRepository.save(user);
@@ -124,10 +118,10 @@ public class AuthController {
 					roles.add(adminRole);
 
 					break;
-				case "mod":
-					Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+				case "operator":
+					Role operatorRole = roleRepository.findByName(ERole.ROLE_OPERATOR)
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(modRole);
+					roles.add(operatorRole);
 
 					break;
 				default:

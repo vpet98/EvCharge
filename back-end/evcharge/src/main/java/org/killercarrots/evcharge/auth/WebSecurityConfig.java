@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	// Access policy for endpoints is configured here
-	// Update for new implemented URLs if needed
+	// TODO : Update for new implemented URLs if needed
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable()
