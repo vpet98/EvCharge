@@ -18,7 +18,6 @@ class Banner extends React.Component{
       </React.StrictMode>,
       document.getElementById('root')
     );
-
   }
 
   render(){
