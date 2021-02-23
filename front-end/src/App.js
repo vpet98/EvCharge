@@ -1,25 +1,27 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import Banner from './Banner.js';
+import ServicesDiv from './ServicesDiv.js';
+import Footer from './Footer.js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+class App extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = { user: props.user };
+  }
+
+  render(){
+    // let userName = this.state.user === null ? "<anonymous>" : this.state.user;
+    return (
+      <div className="container">
+        <Banner user={this.state.user}/>
+        <h1>Ev Charge</h1>
+        <ServicesDiv user={this.state.user}/>
+        <Footer/>
+      </div>
+    );
+  }
 }
 
 export default App;
