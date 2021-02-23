@@ -91,7 +91,7 @@ public class AuthController {
 	public ResponseEntity<String> registerUser(@RequestParam(value = "format", defaultValue = "json") String format,
 	// requested roles found in parameter if given any
 	@RequestParam(value = "roles", defaultValue = "[\"user\"]") List<String> reqRoles,
-	// username and password are from provided in url path in specifications
+	// username and password are provided in url path in specifications
 	// (dangerous way of passing password like that, but I obey the rules master ¯\_(ツ)_/¯ )
 	@PathVariable(value = "username") String name,
 	@PathVariable(value = "password") String pass){
@@ -138,5 +138,5 @@ public class AuthController {
 
 		return GeneralController.buildResponse(new MessageResponse("User registered successfully!", "message"), format);//, "registration.csv");
 	}
-    
+
 }
