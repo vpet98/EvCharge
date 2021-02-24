@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 import org.killercarrots.evcharge.models.ERole;
 import org.killercarrots.evcharge.models.MessageResponse;
@@ -22,11 +24,14 @@ import org.killercarrots.evcharge.models.User;
 import org.killercarrots.evcharge.models.Station;
 import org.killercarrots.evcharge.models.Point;
 import org.killercarrots.evcharge.models.Vehicle;
+import org.killercarrots.evcharge.models.ActiveSession;
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
 import org.killercarrots.evcharge.repos.UserRepository;
 import org.killercarrots.evcharge.repos.StationRepository;
 import org.killercarrots.evcharge.repos.VehicleRepository;
+import org.killercarrots.evcharge.repos.ActiveSessionRepository;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +41,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import org.killercarrots.evcharge.errorHandling.*;
 import org.killercarrots.evcharge.models.*;
@@ -47,7 +53,7 @@ import org.killercarrots.evcharge.models.*;
 @RestController
 @CrossOrigin(origins = "*")
 public class GeneralController {
-  
+
   @Autowired
   public static SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -65,6 +71,9 @@ public class GeneralController {
 
 	@Autowired
 	ChargeEventsRepository chargeEventsRepository;
+
+  @Autowired
+  ActiveSessionRepository activeSessionRepository;
 
   @Autowired
   BCryptPasswordEncoder encoder;
@@ -174,7 +183,7 @@ public class GeneralController {
 			throw new NoDataException("No charging events found for given period and pointID: "+point);
 		}
 		// get station id and search for the operator
-		String[] tmp = point.split("_"); 
+		String[] tmp = point.split("_");
 		int suffixLen = tmp[tmp.length-1].length()+1;
 		String stationId = point.substring(0,point.length()-suffixLen);
 		// we let no point or session exist if it does not corrispond to a station so no need to check existence
@@ -190,13 +199,14 @@ public class GeneralController {
   @GetMapping("/evcharge/api/SessionCost/{vehicleId}/{station_point}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
   public ResponseEntity<String> pointInfo(@RequestParam(value = "format", defaultValue = "json") String format,
-	// vehicle, stationId and pointId are provided in url path
+  // vehicleId and stationId_pointId are provided in url path
 	@PathVariable(value = "vehicleId") String vehicleId,
-  @PathVariable(value = "station_point") String station_point) {
+  @PathVariable(value = "station_point") String station_point) throws BadRequestException {
 
     // get cost of chosen station
     String[] arrOfStr = station_point.split("_");
-    Station station = stationRepository.findById(arrOfStr[0]).get();
+    Station station = stationRepository.findById(arrOfStr[0]).orElseThrow(() -> new BadRequestException("No such station"));
+    station = stationRepository.findById(arrOfStr[0]).get();
     double cost = station.getCost();
 
     // get protocol of chosen point
@@ -205,9 +215,11 @@ public class GeneralController {
     for (Point p : points)
         if (Integer.toString(p.getLocalId()).equals(arrOfStr[1]))
           point = p;
+    if (point.getLocalId() == 0) throw new BadRequestException("No such point in this station");
 
     // check if vehicle supports this protocol and return message if not
-    Vehicle vehicle = vehicleRepository.findById(vehicleId).get();
+    Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(() -> new BadRequestException("No such vehicle"));
+    vehicle = vehicleRepository.findById(vehicleId).get();
     if (point.getType().equals("ac")) {
       if (vehicle.getAc() == null || !vehicle.getAc().ports.contains(point.getPort()) || vehicle.getAc().max_power < point.getPower())
         return buildResponse(new MessageResponse("Vehicle does not support this charging protocol", "Response"), format);
@@ -231,16 +243,155 @@ public class GeneralController {
   }
 
   // Charging starts with cost given as goal
-  /*@PostMapping(value="/evcharge/api/SessionCost/{vehicle}/{pointId}")
+  @PostMapping(value="/evcharge/api/StartSessionCost/{vehicleId}/{station_point}/{cost}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public ResponseEntity<String> userCharging(@RequestParam(value = "format", defaultValue = "json") String format,
-	// vehicle and pointId are provided in url path
-	@PathVariable(value = "vehicle") String vehicle,
-	@PathVariable(value = "pointId") String point) {
+  public ResponseEntity<String> startChargingCost(Authentication auth,
+  @RequestParam(value = "format", defaultValue = "json") String format,
+	// vehicleId, stationID_pointId, protocol and cost are provided in url path
+	@PathVariable(value = "vehicleId") String vehicleId,
+	@PathVariable(value = "station_point") String station_point,
+  @PathVariable(value = "cost") String cost) throws BadRequestException {
 
-    // what is the protocol field ???
+    String[] arrOfStr = station_point.split("_");
+    Station station = stationRepository.findById(arrOfStr[0]).orElseThrow(() -> new BadRequestException("No such station"));
+    station = stationRepository.findById(arrOfStr[0]).get();
+    // get protocol of chosen point
+    Point point = new Point();
+    Set<Point> points = station.getPoints();
+    for (Point p : points)
+        if (Integer.toString(p.getLocalId()).equals(arrOfStr[1]))
+          point = p;
+    if (point.getLocalId() == 0) throw new BadRequestException("No such point in this station");
 
+    // check if vehicle supports this protocol and return message if not
+    Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(() -> new BadRequestException("No such vehicle"));
+    vehicle = vehicleRepository.findById(vehicleId).get();
+    if (point.getType().equals("ac")) {
+      if (vehicle.getAc() == null || !vehicle.getAc().ports.contains(point.getPort()) || vehicle.getAc().max_power < point.getPower())
+        return buildResponse(new MessageResponse("Vehicle does not support this charging protocol", "Response"), format);
+      }
+    else if (point.getType().equals("dc"))
+      if (vehicle.getDc() == null || !vehicle.getDc().ports.contains(point.getPort()) || vehicle.getDc().max_power < point.getPower())
+        return buildResponse(new MessageResponse("Vehicle does not support this charging protocol", "Response"), format);
 
-  }*/
+    // supported protocol as string
+    String protocol;
+    protocol = point.getPort() + "_" + point.getType() + "_" + Double.toString(point.getPower()) + "kW";
+
+    ActiveSession activeSession = new ActiveSession();
+    // get system time, needed later
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    LocalDateTime now = LocalDateTime.now();
+    // There is no automatic way of setting unique id in mongodb with java and spring
+    // Also no available tutorial was found without using maven dependencies, which we do not use
+    // As a workaround, id is generated by concatenating stationId-pointId-startTime,
+    // supposing it's not possible to start more than one session in the same second,
+    // which in turn means that host system of API must never lose synchronization with universal time
+    // In short, this is not a sufficient solution for a real system
+    activeSession.setId(arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
+    activeSession.setStationId(arrOfStr[0]);
+    activeSession.setPointId(arrOfStr[1]);
+    activeSession.setVehicleId(vehicleId);
+    activeSession.setOperatorId(station.getOperator());
+    activeSession.setStartTime(dtf.format(now));
+    // find user by token
+    String username = auth.getName();
+    activeSession.setUser(username);
+    activeSession.setProtocol(protocol);
+    double kWhRequested = Double.parseDouble(cost) / station.getCost();
+    // get vehicle's battery size, if requested amount exceeds battery size adjust request to battery size amount
+    String message = "";
+    if (kWhRequested > vehicle.getBatterySize()) {
+      kWhRequested = vehicle.getBatterySize();
+      message = "Vehicle's battery size exceeded and request adjusted to maximum amount. ";
+    }
+    activeSession.setKWhRequested(kWhRequested);
+    activeSession.setCostPerKWh(station.getCost());
+
+    // add active session to database and return response
+    try {
+      activeSessionRepository.save(activeSession);
+    }
+    catch (Exception e) {
+			return buildResponse(new MessageResponse("Failed to start session", "status"), format);
+    }
+    return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
+  }
+
+  // Charging starts with amount given as goal
+  @PostMapping(value="/evcharge/api/StartSessionAmount/{vehicleId}/{station_point}/{amount}")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> startChargingAmount(Authentication auth,
+  @RequestParam(value = "format", defaultValue = "json") String format,
+	// vehicleId, stationID_pointId, protocol and cost are provided in url path
+	@PathVariable(value = "vehicleId") String vehicleId,
+	@PathVariable(value = "station_point") String station_point,
+  @PathVariable(value = "amount") String amount) throws BadRequestException {
+
+    String[] arrOfStr = station_point.split("_");
+    Station station = stationRepository.findById(arrOfStr[0]).orElseThrow(() -> new BadRequestException("No such station"));
+    station = stationRepository.findById(arrOfStr[0]).get();
+    // get protocol of chosen point
+    Point point = new Point();
+    Set<Point> points = station.getPoints();
+    for (Point p : points)
+        if (Integer.toString(p.getLocalId()).equals(arrOfStr[1]))
+          point = p;
+    if (point.getLocalId() == 0) throw new BadRequestException("No such point in this station");
+
+    // check if vehicle supports this protocol and return message if not
+    Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(() -> new BadRequestException("No such vehicle"));
+    vehicle = vehicleRepository.findById(vehicleId).get();
+    if (point.getType().equals("ac")) {
+      if (vehicle.getAc() == null || !vehicle.getAc().ports.contains(point.getPort()) || vehicle.getAc().max_power < point.getPower())
+        return buildResponse(new MessageResponse("Vehicle does not support this charging protocol", "Response"), format);
+      }
+    else if (point.getType().equals("dc"))
+      if (vehicle.getDc() == null || !vehicle.getDc().ports.contains(point.getPort()) || vehicle.getDc().max_power < point.getPower())
+        return buildResponse(new MessageResponse("Vehicle does not support this charging protocol", "Response"), format);
+
+    // supported protocol as string
+    String protocol;
+    protocol = point.getPort() + "_" + point.getType() + "_" + Double.toString(point.getPower()) + "kW";
+
+    ActiveSession activeSession = new ActiveSession();
+    // get system time, needed later
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    LocalDateTime now = LocalDateTime.now();
+    // There is no automatic way of setting unique id in mongodb with java and spring
+    // Also no available tutorial was found without using maven dependencies, which we do not use
+    // As a workaround, id is generated by concatenating stationId-pointId-startTime,
+    // supposing it's not possible to start more than one session in the same second,
+    // which in turn means that host system of API must never lose synchronization with universal time
+    // In short, this is not a sufficient solution for a real system
+    activeSession.setId(arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
+    activeSession.setStationId(arrOfStr[0]);
+    activeSession.setPointId(arrOfStr[1]);
+    activeSession.setVehicleId(vehicleId);
+    activeSession.setOperatorId(station.getOperator());
+    activeSession.setStartTime(dtf.format(now));
+    // find user by token
+    String username = auth.getName();
+    activeSession.setUser(username);
+    activeSession.setProtocol(protocol);
+    double kWhRequested = Double.parseDouble(amount);
+    // get vehicle's battery size, if requested amount exceeds battery size adjust request to battery size amount
+    String message = "";
+    if (kWhRequested > vehicle.getBatterySize()) {
+      kWhRequested = vehicle.getBatterySize();
+      message = "Vehicle's battery size exceeded and request adjusted to maximum amount. ";
+    }
+    activeSession.setKWhRequested(kWhRequested);
+    activeSession.setCostPerKWh(station.getCost());
+
+    // add active session to database and return response
+    try {
+      activeSessionRepository.save(activeSession);
+    }
+    catch (Exception e) {
+			return buildResponse(new MessageResponse("Failed to start session", "status"), format);
+    }
+    return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
+  }
 
 }

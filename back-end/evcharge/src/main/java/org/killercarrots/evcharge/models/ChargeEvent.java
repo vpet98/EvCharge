@@ -14,7 +14,7 @@ import lombok.ToString;
 public class ChargeEvent {
     @MongoId
     private String eventId;
-    private String stationId, pointId, vehicleId, startTime, endTime;
+    private String stationId, pointId, vehicleId, operatorId, startTime, endTime;
     private double kWhDelivered, costPerKWh, sessionCost;
     private String protocol, user;
 
