@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.killercarrots.evcharge.errorHandling.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 if(userDetails.getToken()==null || !jwt.equals(userDetails.getToken())){
 					//System.out.println("\n\n\n"+userDetails.getToken());
 					//System.out.println(jwt+"\n\n\n");
-                    throw new UnauthorizedException("Api-key invalid. Please proceed to login.");
+                    throw new NotAuthorizedException("Api-key invalid. Please proceed to login.");
                 }
 				//System.out.println("\n\n\ncheching token\n\n\n");
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
