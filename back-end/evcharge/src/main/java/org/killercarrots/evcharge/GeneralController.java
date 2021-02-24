@@ -132,8 +132,19 @@ public class GeneralController {
 		return "Admin Board.";
 	}
 
+	@GetMapping(value="/evcharge/api/admin/healthcheck")
+	public ResponseEntity<String> healthCheck() {
+		try {
+			// just a demo simple query to check connectivity
+			userRepository.findById("admin");
+		} catch (Exception e) {
+			return buildResponse(new MessageResponse("failed", "status"), "json");
+		}
+		return buildResponse(new MessageResponse("OK", "status"), "json");
+	}
+
 	@PostMapping(value="/evcharge/api/admin/resetsessions")
-	public ResponseEntity<String> resetSessions(@RequestParam(value = "format", defaultValue = "json") String format) {
+	public ResponseEntity<String> resetSessions() {
 		try{
 			// Make sure to intialize Roles collection too
 			// So if you don't load them manually you can
@@ -154,15 +165,15 @@ public class GeneralController {
 			// drop sessions collection in db
 			chargeEventsRepository.deleteAll();
 		} catch (Exception e){
-			return buildResponse(new MessageResponse("failed", "status"), format);
+			return buildResponse(new MessageResponse("failed", "status"), "json");
 		}
 
-		return buildResponse(new MessageResponse("OK", "status"), format);
+		return buildResponse(new MessageResponse("OK", "status"), "json");
 	}
 
   // Get sessions in a specified period of time for a given pointID
   @GetMapping(value="/evcharge/api/SessionsPerPoint/{pointId}/{fromDate}/{toDate}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
 	public ResponseEntity<String> getSessionsPerPoint(@RequestParam(value = "format", defaultValue = "json") String format,
 	@PathVariable(value = "pointId") String point,
 	@PathVariable(value = "fromDate") String from,
@@ -173,13 +184,64 @@ public class GeneralController {
 		if(events.size() == 0){
 			throw new NoDataException("No charging events found for given period and pointID: "+point);
 		}
-		// get station id and search for the operator
-		String[] tmp = point.split("_"); 
-		int suffixLen = tmp[tmp.length-1].length()+1;
-		String stationId = point.substring(0,point.length()-suffixLen);
-		// we let no point or session exist if it does not corrispond to a station so no need to check existence
-		String operator = stationRepository.findById(stationId).get().getOperator();
-		PointSessionsResponse body = new PointSessionsResponse(point, operator, from, to);
+		PointSessionsResponse body = new PointSessionsResponse(point, events.get(0).getOperator(), from, to);
+		body.buildList(events);
+		return buildResponse(body, format);
+	}
+
+	// Get sessions in a specified period of time for a given stationID
+	@GetMapping(value="/evcharge/api/SessionsPerStation/{stationId}/{fromDate}/{toDate}")
+	@PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+	public ResponseEntity<String> getSessionsPerStation(
+	@RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "stationId") String station,
+	@PathVariable(value = "fromDate") String from,
+	@PathVariable(value = "toDate") String to) throws NoDataException, BadRequestException {
+		from = formatDate(from) + " 00:00:00";
+		to = formatDate(to) + " 23:59:59";
+		List<ChargeEvent> events = chargeEventsRepository.findByStationIdAndStartTimeBetweenOrderByStartTimeAsc(station, from, to);
+		if(events.size() == 0){
+			throw new NoDataException("No charging events found for given period and stationID: "+station);
+		}
+		StationSessionsResponse body = new StationSessionsResponse(station, events.get(0).getOperator(), from, to);
+		body.buildList(events);
+		return buildResponse(body, format);
+	}
+
+	// Get sessions in a specified period of time for a given vehicleID
+	@GetMapping(value="/evcharge/api/SessionsPerEV/{vehicleId}/{fromDate}/{toDate}")
+	@PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('OPERATOR')")
+	public ResponseEntity<String> getSessionsPerEV(
+	@RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "vehicleId") String vehicle,
+	@PathVariable(value = "fromDate") String from,
+	@PathVariable(value = "toDate") String to) throws NoDataException, BadRequestException {
+		from = formatDate(from) + " 00:00:00";
+		to = formatDate(to) + " 23:59:59";
+		List<ChargeEvent> events = chargeEventsRepository.findByVehicleIdAndStartTimeBetweenOrderByStartTimeAsc(vehicle, from, to);
+		if(events.size() == 0){
+			throw new NoDataException("No charging events found for given period and vehicleID: "+vehicle);
+		}
+		VehicleSessionsResponse body = new VehicleSessionsResponse(vehicle, from, to);
+		body.buildList(events);
+		return buildResponse(body, format);
+	}
+
+	// Get sessions in a specified period of time for a given provider
+	@GetMapping(value="/evcharge/api/SessionsPerProvider/{providerId}/{fromDate}/{toDate}")
+	@PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+	public ResponseEntity<String> getSessionsPerProvider(
+	@RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "providerId") String operator,
+	@PathVariable(value = "fromDate") String from,
+	@PathVariable(value = "toDate") String to) throws NoDataException, BadRequestException {
+		from = formatDate(from) + " 00:00:00";
+		to = formatDate(to) + " 23:59:59";
+		List<ChargeEvent> events = chargeEventsRepository.findByOperatorAndStartTimeBetweenOrderByStartTimeAsc(operator, from, to);
+		if(events.size() == 0){
+			throw new NoDataException("No charging events found for given period and providerID: "+operator);
+		}
+		OperatorSessionsResponse body = new OperatorSessionsResponse(operator, from, to);
 		body.buildList(events);
 		return buildResponse(body, format);
 	}

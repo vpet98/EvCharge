@@ -13,11 +13,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class Handler extends ResponseEntityExceptionHandler {
 
-    protected ResponseEntity<String> DBDown(DataAccessException e) {
-        ApiError err = new ApiError(503, "Service unavailable", e.getMessage());
-        return err.buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
     @ExceptionHandler(BadRequestException.class)
     protected ResponseEntity<String> BadRequestHandler(BadRequestException e) {
         ApiError err = new ApiError(400, "Bad request", e.getMessage());
@@ -35,6 +30,12 @@ public class Handler extends ResponseEntityExceptionHandler {
         ApiError err = new ApiError(402, "No data", e.getMessage());
         // 402 status code somehow refers to Payment Required
         return err.buildErrorResponse(HttpStatus.PAYMENT_REQUIRED);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    protected ResponseEntity<String> DBDown(DataAccessException e) {
+        ApiError err = new ApiError(503, "Service unavailable", e.getMessage());
+        return err.buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(Exception.class)
