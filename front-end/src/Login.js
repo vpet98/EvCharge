@@ -11,8 +11,7 @@ class Login extends React.Component{
       username: "",
       password: "",
       error: null,
-      token: null,
-      appCallback: props.callback
+      token: null
     };
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -49,7 +48,7 @@ class Login extends React.Component{
               password: this.state.password, // maybe this is not a good IDEA
               token: this.state.token
             };
-            this.state.appCallback({
+            this.props.callback({
               page: pages.main,
               user: finalUser
             });
@@ -64,7 +63,7 @@ class Login extends React.Component{
   // handle the return button of the form to return to the main page without loging in
   handleReturn(e){
     this.setState({ error: null });
-    this.state.appCallback({
+    this.props.callback({
       page: pages.main,
       user: null
     });
@@ -87,7 +86,7 @@ class Login extends React.Component{
             />
             <p>Password</p>
             <input
-              type="text"
+              type="text" // IDEA -- change to type="password"
               name="password"
               field="password"
               placeholder="password"

@@ -24,9 +24,9 @@ class App extends React.Component {
 
   // a function to change the state (page, user)
   changePage(props){
-    if(props.user !== null)
+    if(props.user !== this.state.user)
       this.setState({ user: props.user });
-    if(props.page !== null)
+    if(props.page !== this.state.page)
       this.setState({ page: props.page });
   }
 
