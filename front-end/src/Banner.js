@@ -1,32 +1,33 @@
 import React from 'react';
 import './Banner.css';
-import Login from './Login.js';
-import ReactDOM from 'react-dom';
+import { pages } from './App.js';
 
-
+// A banner component
 class Banner extends React.Component{
   constructor(props){
     super(props);
-    this.state = { user : props.user };
+    this.state = {
+      user: props.user,
+      appCallback: props.callback,
+    };
     this.handleLogin = this.handleLogin.bind(this);
   }
 
+  // handle click "go to login page" button
   handleLogin(e){
-    ReactDOM.render(
-      <React.StrictMode>
-        <Login/>
-      </React.StrictMode>,
-      document.getElementById('root')
-    );
+    this.state.appCallback({
+      page: pages.login,
+      user: null
+    });
   }
 
   render(){
-    let userName = this.state.user === null ? "<anonymous>" : this.state.user;
+    let userName = this.state.user ? this.state.user.username : "<anonymous>";
     return(
       <div className="banner">
         <h4>EvCharge</h4>
         {this.state.user !== null &&(
-          <p>User: {userName}</p>
+          <p>{userName}</p>
         )}
         {this.state.user === null &&(
           <button

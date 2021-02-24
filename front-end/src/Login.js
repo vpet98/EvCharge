@@ -1,7 +1,9 @@
 import React from 'react';
 import './Login.css';
+import {pages} from './App.js';
 import {postLoginToken} from './api.js';
 
+// the login page component
 class Login extends React.Component{
   constructor(props){
     super(props);
@@ -9,18 +11,24 @@ class Login extends React.Component{
       username: "",
       password: "",
       error: null,
-      token: null
+      token: null,
+      appCallback: props.callback
     };
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleReturn = this.handleReturn.bind(this);
   }
 
+  // handle any change in input areas
   handleInput(e){
     const name = e.target.name;
     const value = e.target.value;
     this.setState({ [name]: value });
   }
 
+  // handle the submit button of the form
+  // If everything OK then change the page of the App and return user
+  // else return error
   handleSubmit(e){
     this.setState({ error: null });
     if(this.state.username === ""){
@@ -36,13 +44,30 @@ class Login extends React.Component{
         .then(json => {
           setTimeout(() => {
             this.setState({ token: json.data.token });
-            window.alert("Got token " + this.state.token);
+            let finalUser = {
+              username: this.state.username,
+              password: this.state.password, // maybe this is not a good IDEA
+              token: this.state.token
+            };
+            this.state.appCallback({
+              page: pages.main,
+              user: finalUser
+            });
           }, 0)
         })
         .catch(err => {
-          this.setState({ error: err.error });
+          this.setState({ error: err.message });
         });
     }
+  }
+
+  // handle the return button of the form to return to the main page without loging in
+  handleReturn(e){
+    this.setState({ error: null });
+    this.state.appCallback({
+      page: pages.main,
+      user: null
+    });
   }
 
   render(){
@@ -75,6 +100,13 @@ class Login extends React.Component{
               onClick={this.handleSubmit}
             >
               Login
+            </button>
+            <button
+              type="button"
+              name="return"
+              onClick={this.handleReturn}
+            >
+              Continue as guest
             </button>
             <p>{ this.state.error }</p>
           </div>
