@@ -7,11 +7,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class Handler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(MultipartException.class)
+    protected ResponseEntity<String> MultipartHandler(MultipartException e) {
+        ApiError err = new ApiError(400, "Bad request", e.getMessage());
+        return err.buildErrorResponse(HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(BadRequestException.class)
     protected ResponseEntity<String> BadRequestHandler(BadRequestException e) {
