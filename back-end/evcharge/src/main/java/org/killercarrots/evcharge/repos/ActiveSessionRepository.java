@@ -7,4 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ActiveSessionRepository extends MongoRepository<ActiveSession, String> {
     Optional<ActiveSession> findById(String id);
+    List<ActiveSession> findByUser(String user);
 }

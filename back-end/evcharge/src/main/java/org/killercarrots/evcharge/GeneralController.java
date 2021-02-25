@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
@@ -474,7 +475,10 @@ public class GeneralController {
     catch (Exception e) {
 			return buildResponse(new MessageResponse("Failed to start session", "status"), format);
     }
-    return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
+    HashMap<String, String> fields_messages = new HashMap<String, String>();
+    fields_messages.put("session", arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
+    fields_messages.put("status", message+"Charging session started succesfully!");
+    return buildResponse(new PointInfoResponse(fields_messages), format);
   }
 
   // Charging starts with amount given as goal
@@ -550,7 +554,48 @@ public class GeneralController {
     catch (Exception e) {
 			return buildResponse(new MessageResponse("Failed to start session", "status"), format);
     }
-    return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
+    HashMap<String, String> fields_messages = new HashMap<String, String>();
+    fields_messages.put("session", arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
+    fields_messages.put("status", message+"Charging session started succesfully!");
+    return buildResponse(new PointInfoResponse(fields_messages), format);
+  }
+
+  // Implementing use case 2: complete charging event
+
+  // User requests his/her active sessions
+  @GetMapping("/evcharge/api/ActiveSession")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> userActiveSessions(Authentication auth,
+  @RequestParam(value = "format", defaultValue = "json") String format) throws NoDataException {
+
+    String username = auth.getName();
+    HashSet<ActiveSession> sessions = activeSessionRepository.findByUser(username);
+    if(sessions.size() == 0) {
+      throw new NoDataException("No active sessions for user: "+username);
+    }
+
+    // collect all active sessions of user in a Hashmap(sessionId, currentCost)
+    HashMap<String, Double> map = new HashMap<>();
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    for (ActiveSession s : sessions) {
+      Station station = stationRepository.findById(s.getStationId());
+      Point point = new Point();
+      Set<Point> points = station.getPoints();
+      for (Point p : points)
+        if (Integer.toString(p.getLocalId()).equals(s.getPointId()))
+          point = p;
+      // calculate current chargine time
+      LocalDateTime now = LocalDateTime.now();
+      long diff = ChronoUnit.SECONDS.between(LocalDateTime.parse(s.getStartTime(), dtf), now);
+      // calculate current cost
+      double currentCost = (diff/60.0)*point.getPower()*s.getCostPerKWh();
+      // put to map
+      map.put(s.getId(), currentCost);
+    }
+
+    ActiveSessionsResponse response = new ActiveSessionsResponse(map);
+    body.buildList(events);
+    return buildResponse(body, format);
   }
 
 }
