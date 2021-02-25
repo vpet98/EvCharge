@@ -20,7 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import static java.time.temporal.ChronoUnit.HOURS;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
@@ -278,6 +281,9 @@ public class GeneralController {
 		return buildResponse(new MessageResponse("OK", "status"), "json");
 	}
 
+
+  // Implementing use case 3: statistics
+
   // Get sessions in a specified period of time for a given pointID
   @GetMapping(value="/evcharge/api/SessionsPerPoint/{pointId}/{fromDate}/{toDate}")
 	@PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
@@ -352,6 +358,7 @@ public class GeneralController {
 		body.buildList(events);
 		return buildResponse(body, format);
 	}
+
 
   // Implementing use case 1: start charging event
 
@@ -459,6 +466,9 @@ public class GeneralController {
     activeSession.setUser(username);
     activeSession.setProtocol(protocol);
     double kWhRequested = Double.parseDouble(cost) / station.getCost();
+    DecimalFormat df = new DecimalFormat("0.00");
+    df.setRoundingMode(RoundingMode.DOWN);
+    kWhRequested = Double.parseDouble(df.format(kWhRequested));
     // get vehicle's battery size, if requested amount exceeds battery size adjust request to battery size amount
     String message = "";
     if (kWhRequested > vehicle.getBatterySize()) {
@@ -560,6 +570,7 @@ public class GeneralController {
     return buildResponse(new PointInfoResponse(fields_messages), format);
   }
 
+
   // Implementing use case 2: complete charging event
 
   // User requests his/her active sessions
@@ -578,7 +589,7 @@ public class GeneralController {
     HashMap<String, Double> map = new HashMap<>();
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     for (ActiveSession s : sessions) {
-      Station station = stationRepository.findById(s.getStationId());
+      Station station = stationRepository.findById(s.getStationId()).get();
       Point point = new Point();
       Set<Point> points = station.getPoints();
       for (Point p : points)
@@ -589,16 +600,17 @@ public class GeneralController {
       long diff = ChronoUnit.SECONDS.between(LocalDateTime.parse(s.getStartTime(), dtf), now);
       // calculate current cost
       double currentCost = (diff/60.0)*point.getPower()*s.getCostPerKWh();
+      DecimalFormat df = new DecimalFormat("0.00");
+      currentCost = Double.parseDouble(df.format(currentCost));
       // put to map
       map.put(s.getId(), currentCost);
     }
 
-    ActiveSessionsResponse response = new ActiveSessionsResponse(map);
-    body.buildList(events);
-    return buildResponse(body, format);
+    return buildResponse(new ActiveSessionsResponse(map), format);
   }
 
-  // Search for nearby stations
+
+  // Implementing use case 4: search for nearby station
   @GetMapping(value="/evcharge/api/StationsNearby/{lat}/{lon}/{radius}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
   public ResponseEntity<String> SearchStationsNearby(

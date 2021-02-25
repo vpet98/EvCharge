@@ -3,34 +3,35 @@ package org.killercarrots.evcharge.models;
 import java.util.HashMap;
 
 import lombok.Getter;
-import lombok.Setter;
 
-@Setter
 @Getter
-public class AvtiveSessionsResponse extends MyAbstractObj {
+public class ActiveSessionsResponse extends MyAbstractObj {
 
     private int sessionsNum;
-    private HashMap<String, Double> sessions = new HashMap<>();
+    private HashMap<String, Double> sessions = new HashMap<String, Double>();
 
-    public ActiveSessionsResponse(HashMap map) {
+    public ActiveSessionsResponse(HashMap<String, Double> map) {
         this.sessionsNum = map.size();
         this.sessions = map;
     }
 
     @Override
     public String toCsv() {
-        String ret = "ProviderID,StationID,SessionID,VehicleID,StartedOn,FinishedOn,EnergyDelivered,CostPerKWh,TotalCost";
-        for(ChargeEvent i : this.sessions) {
-            ret = ret + "\n"+i.getOperator()+","+i.getStationId()+","+i.getEventId()+","+i.getVehicleId()+","+i.getStartTime()+","+i.getEndTime()+
-                        ","+String.valueOf(i.getKWhDelivered())+","+String.valueOf(i.getCostPerKWh())+","+String.valueOf(i.getSessionCost());
-        }
+        String ret = "SessionID,CurrentCost\n";
+        for(String k : this.sessions.keySet())
+            ret += k + "," + Double.toString(this.sessions.get(k)) + "\n";
+        ret = ret.substring(0, ret.length() - 1);
         return ret;
     }
 
     @Override
     public String toJson() {
-        String ret = "{\"NumberOfChargingSessions\":"+String.valueOf(this.sessionsNum)+","+
-                        "\"ActiveSessionsList\":"+this.sessions.toString()+"}";
+        String ses = "";
+        for (String k : this.sessions.keySet())
+          ses += "{\"SessionID\":" +  "\"" + k + "\",\"CurrentCost\":" + "\"" + Double.toString(this.sessions.get(k)) + "\"},";
+        ses = ses.substring(0, ses.length() - 1);
+        String ret = "{\"NumberOfActiveSessions\":"+String.valueOf(this.sessionsNum)+","+
+                        "\"ActiveSessionsList\":["+ses+"]}";
         return ret;
     }
 
