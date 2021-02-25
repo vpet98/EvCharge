@@ -1,30 +1,26 @@
 package org.killercarrots.evcharge;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
-import org.killercarrots.evcharge.models.ERole;
-import org.killercarrots.evcharge.models.MessageResponse;
-import org.killercarrots.evcharge.models.PointInfoResponse;
-import org.killercarrots.evcharge.models.MyAbstractObj;
-import org.killercarrots.evcharge.models.Role;
-import org.killercarrots.evcharge.models.User;
-import org.killercarrots.evcharge.models.Station;
-import org.killercarrots.evcharge.models.Point;
-import org.killercarrots.evcharge.models.Vehicle;
-import org.killercarrots.evcharge.models.ActiveSession;
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
 import org.killercarrots.evcharge.repos.UserRepository;
@@ -41,11 +37,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 
 import org.killercarrots.evcharge.errorHandling.*;
 import org.killercarrots.evcharge.models.*;
-
 
 // Spring boot seems to not register both controllers
 // so we set this one to RestController as a workaround
@@ -55,7 +51,7 @@ import org.killercarrots.evcharge.models.*;
 public class GeneralController {
 
   @Autowired
-  public static SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  public static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   @Autowired
   UserRepository userRepository;
@@ -69,8 +65,8 @@ public class GeneralController {
   @Autowired
   VehicleRepository vehicleRepository;
 
-	@Autowired
-	ChargeEventsRepository chargeEventsRepository;
+  @Autowired
+  ChargeEventsRepository chargeEventsRepository;
 
   @Autowired
   ActiveSessionRepository activeSessionRepository;
@@ -78,14 +74,15 @@ public class GeneralController {
   @Autowired
   BCryptPasswordEncoder encoder;
 
-	// Creates the ResponseEntity for the desired response object with the correct format type
-  public static ResponseEntity<String> buildResponse(MyAbstractObj obj, String format){
+  // Creates the ResponseEntity for the desired response object with the correct
+  // format type
+  public static ResponseEntity<String> buildResponse(MyAbstractObj obj, String format) {
     String body = null;
     HttpHeaders headers = new HttpHeaders();
-    switch(format){
+    switch (format) {
       case "csv": {
         body = obj.toCsv();
-        //headers.add("Content-Disposition", "attachment; filename=\""+filename+"\"");
+        // headers.add("Content-Disposition", "attachment; filename=\""+filename+"\"");
         headers.setContentType(new MediaType("txt", "csv", Charset.forName("utf-8")));
         break;
       }
@@ -94,52 +91,152 @@ public class GeneralController {
         headers.setContentType(MediaType.APPLICATION_JSON);
       }
     }
-    return new ResponseEntity<String>(body ,headers, HttpStatus.OK);
+    return new ResponseEntity<String>(body, headers, HttpStatus.OK);
   }
 
+  public static String formatDate(String date) throws BadRequestException {
+    if (date.length() != 8) {
+      throw new BadRequestException("Invalid date format");
+    }
+    String year = date.substring(0, 4);
+    String month = date.substring(4, 6);
+    String day = date.substring(6);
+    int y = Integer.parseInt(year);
+    int m = Integer.parseInt(month);
+    int d = Integer.parseInt(day);
+    // would be overkill to start checking for 30 or 31 days
+    // or leap years
+    if (y > 0 && m > 0 && m < 13 && d > 0 && d < 32) {
+      return year + '-' + month + '-' + day;
+    }
+    throw new BadRequestException("Invalid date given");
+  }
 
-	public static String formatDate(String date) throws BadRequestException {
-		if(date.length()!=8){
-			throw new BadRequestException("Invalid date format");
-		}
-		String year = date.substring(0,4);
-		String month = date.substring(4, 6);
-		String day = date.substring(6);
-		int y = Integer.parseInt(year);
-		int m = Integer.parseInt(month);
-		int d = Integer.parseInt(day);
-		// would be overkill to start checking for 30 or 31 days
-		// or leap years
-		if(y > 0 && m > 0 && m < 13 && d > 0 && d < 32 ) {
-			return year+'-'+month+'-'+day;
-		}
-		throw new BadRequestException("Invalid date given");
-	}
+  public static boolean validateDateFormat(String input, String[] formats) {
+    for (String formatString : formats) {
+      try {
+          new SimpleDateFormat(formatString).parse(input);
+          return true;
+      } catch (Exception e) {
+          /* nothing */
+      }
+    }
+    return false;
+  }
 
-	//just some demo endpoints to check
-	// role based authorization
-	@GetMapping("/evcharge/test")
-	public String allAccess() {
-		return "Public Content.";
-	}
+  // just some demo endpoints to check
+  // role based authorization
+  @GetMapping("/evcharge/test")
+  public String allAccess() {
+    return "Public Content.";
+  }
 
-	@GetMapping("/evcharge/user")
-	@PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-	public String userAccess() {
-		return "User Content.";
-	}
+  @GetMapping("/evcharge/user")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public String userAccess() {
+    return "User Content.";
+  }
 
-	@GetMapping("/evcharge/operator")
-	@PreAuthorize("hasRole('OPERATOR')")
-	public String moderatorAccess() {
-		return "Moderator Board.";
-	}
+  @GetMapping("/evcharge/operator")
+  @PreAuthorize("hasRole('OPERATOR')")
+  public String moderatorAccess() {
+    return "Moderator Board.";
+  }
 
-	@GetMapping("/evcharge/admin")
-	@PreAuthorize("hasRole('ADMIN')")
-	public String adminAccess() {
-		return "Admin Board.";
-	}
+  @GetMapping("/evcharge/admin")
+  @PreAuthorize("hasRole('ADMIN')")
+  public String adminAccess() {
+    return "Admin Board.";
+  }
+
+  @GetMapping(value="/evcharge/api/admin/users/{username}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<String> GetUserStatus(@RequestParam(value = "format", defaultValue = "json") String format,
+  @PathVariable(value = "username") String username) throws NoDataException {
+    User user = null;
+    System.out.println("searching");
+    try {
+      user = userRepository.findById(username).get();
+    } catch (Exception e) {
+      throw new NoDataException("No registered user matching the given username: "+username);
+    }
+    return buildResponse(new UserStatusDetailsResponse(user), format);
+  }
+
+  // for an event in csv file to be valid we must provide the following information in the correct order
+  // StationId_PointId,VehicleId,User,StartTimestamp,EndTimestamp,DeliveredKWh
+  @PostMapping(value = "/evcharge/api/admin/system/sessionsupd")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<String> sessionsUploadFile(@RequestParam("file") MultipartFile file) throws BadRequestException, IOException {
+    if (file.isEmpty()) {
+      throw new BadRequestException("No file was provided by the user");
+    }
+    int uploaded = 0;
+    int imported = 0;
+    String line;
+    InputStream is = file.getInputStream();
+    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    while((line = br.readLine()) != null) {
+      try {
+        uploaded++;
+        //System.out.println(line);
+        String[] tokens = line.split(",");
+        String[] tmp = tokens[0].split("_");
+        String stationId = tmp[0];
+        int pointId = Integer.parseInt(tmp[1]);
+        String vehicleId = tokens[1];
+        String user = tokens[2];
+        String start = tokens[3];
+        String end = tokens[4];
+        float kWh = Float.parseFloat(tokens[5]);
+        // check date format and start < end
+        if(!(validateDateFormat(start, new String[]{"yyyy-MM-dd hh:mm:ss"}) && validateDateFormat(end, new String[]{"yyyy-MM-dd hh:mm:ss"}) && end.compareTo(start)>0)){
+          //System.out.println("skipping line");
+          continue;
+        }
+        // retrieve point and vehicle to validate existence compatibility
+        Vehicle v = vehicleRepository.findById(vehicleId).get();
+        Station st = stationRepository.findById(stationId).get();
+        // userRepository.findById(user).get();
+        // find point in station
+        Point p = null;
+        String protocol = null;
+        for(Point i : st.getPoints()) {
+          if(i.getLocalId() == pointId) {
+            p = i;
+            break;
+          }
+        }
+        // check compatibility
+        if(v.getAc().getPorts().contains(p.getPort())) {
+          protocol = p.getPort()+"_ac_"+String.valueOf(Math.max(p.getPower(), v.getAc().getMax_power()))+"kW";
+        } else if(v.getDc().getPorts().contains(p.getPort())) {
+          protocol = p.getPort()+"_dc_"+String.valueOf(Math.max(p.getPower(), v.getAc().getMax_power()))+"kW";
+        } else {
+          continue;
+        }
+        ChargeEvent event = new ChargeEvent();
+        event.setEventId(stationId+"_"+String.valueOf(pointId)+"_"+start);
+        event.setStationId(stationId);
+        event.setPointId(stationId+"_"+String.valueOf(pointId));
+        event.setOperator(st.getOperator());
+        event.setVehicleId(vehicleId);
+        event.setStartTime(start);
+        event.setEndTime(end);
+        event.setKWhDelivered(kWh);
+        event.setCostPerKWh(st.getCost());
+        event.setSessionCost(((double) Math.round(kWh*st.getCost()*100))/100);
+        event.setProtocol(protocol);
+        event.setUser(user);
+        chargeEventsRepository.save(event);
+        imported++;
+      } catch(Exception e) {
+        /* just skipping the line if found invalid format */
+      }
+    }
+    long total = chargeEventsRepository.count();
+    return buildResponse(new SessionsUploadResponse(uploaded, imported, total), "json");
+  }
 
 	@GetMapping(value="/evcharge/api/admin/healthcheck")
 	public ResponseEntity<String> healthCheck() {
@@ -454,6 +551,27 @@ public class GeneralController {
 			return buildResponse(new MessageResponse("Failed to start session", "status"), format);
     }
     return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
+  }
+
+  // Search for nearby stations
+  @GetMapping(value="/evcharge/api/StationsNearby/{lat}/{lon}/{radius}")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> SearchStationsNearby(
+  @RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "lat") double lat,
+	@PathVariable(value = "lon") double lon,
+  @PathVariable(value = "radius") int radius) throws BadRequestException, NoDataException {
+    if(lat > 90 || lat < -90 || lon > 180 || lon < -180) {
+      throw new BadRequestException("Invalid coordinates");
+    }
+    List<Station> ls = stationRepository.nearByStations(lon, lat, radius);
+    if(ls.isEmpty()){
+      throw new NoDataException("No charging stations were found near the given location");
+    }
+    // System.out.println(ls.size());
+    NearbyStationsResponse body = new NearbyStationsResponse(lat, lon, radius);
+    body.buildList(ls);
+    return buildResponse(body, format);
   }
 
 }

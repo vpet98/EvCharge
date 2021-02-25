@@ -10,8 +10,7 @@ import lombok.ToString;
 public class Location {
     private String address;
     private String country;
-    private double latitude;
-    private double longitude;
+    private SpatialCoordinates geo;
 
     public Location() {
         /***initialization_is_done_through_setters***/

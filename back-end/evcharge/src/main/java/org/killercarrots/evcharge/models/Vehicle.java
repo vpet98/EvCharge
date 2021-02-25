@@ -28,6 +28,14 @@ public class Vehicle {
     public class Current {
       public Set<String> ports = new HashSet<>();
       public double max_power;
+
+      public Set<String> getPorts() {
+        return this.ports;
+      }
+
+      public double getMax_power() {
+        return this.max_power;
+      }
     }
 
     public Vehicle() {
