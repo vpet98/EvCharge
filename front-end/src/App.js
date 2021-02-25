@@ -3,22 +3,47 @@ import './App.css';
 import Banner from './Banner.js';
 import ServicesDiv from './ServicesDiv.js';
 import Footer from './Footer.js';
+import Login from './Login.js';
 
+// an enumeration of all possible pages
+export const pages = {
+  main: "main",
+  login: "login"
+};
 
+// the most general Component that manages the different pages
 class App extends React.Component {
   constructor(props){
     super(props);
-    this.state = { user: props.user };
+    this.state = {
+      user: props.user,
+      page: pages.main
+    };
+    this.changePage = this.changePage.bind(this);
+  }
+
+  // a function to change the state (page, user)
+  changePage(props){
+    if(props.user !== this.state.user)
+      this.setState({ user: props.user });
+    if(props.page !== this.state.page)
+      this.setState({ page: props.page });
   }
 
   render(){
-    // let userName = this.state.user === null ? "<anonymous>" : this.state.user;
     return (
       <div className="container">
-        <Banner user={this.state.user}/>
-        <h1>Ev Charge</h1>
-        <ServicesDiv user={this.state.user}/>
-        <Footer/>
+      {this.state.page === pages.main && (
+        <div className="mainPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <h1>Ev Charge</h1>
+          <ServicesDiv user={this.state.user}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.login && (
+        <Login callback={this.changePage}/>
+      )}
       </div>
     );
   }

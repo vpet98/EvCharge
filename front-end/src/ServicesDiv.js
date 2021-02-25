@@ -1,6 +1,7 @@
 import React from 'react';
 import './ServicesDiv.css';
 
+// a div that holds links to other important pages
 class ServicesDiv extends React.Component {
   constructor(props){
     super(props);
