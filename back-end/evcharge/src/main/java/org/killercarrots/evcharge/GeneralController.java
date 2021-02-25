@@ -553,4 +553,25 @@ public class GeneralController {
     return buildResponse(new MessageResponse(message+"Charging session started succesfully!", "status"), format);
   }
 
+  // Search for nearby stations
+  @GetMapping(value="/evcharge/api/StationsNearby/{lat}/{lon}/{radius}")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> SearchStationsNearby(
+  @RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "lat") double lat,
+	@PathVariable(value = "lon") double lon,
+  @PathVariable(value = "radius") int radius) throws BadRequestException, NoDataException {
+    if(lat > 90 || lat < -90 || lon > 180 || lon < -180) {
+      throw new BadRequestException("Invalid coordinates");
+    }
+    List<Station> ls = stationRepository.nearByStations(lon, lat, radius);
+    if(ls.isEmpty()){
+      throw new NoDataException("No charging stations were found near the given location");
+    }
+    // System.out.println(ls.size());
+    NearbyStationsResponse body = new NearbyStationsResponse(lat, lon, radius);
+    body.buildList(ls);
+    return buildResponse(body, format);
+  }
+
 }
