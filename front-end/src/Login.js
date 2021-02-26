@@ -46,7 +46,8 @@ class Login extends React.Component{
             let finalUser = {
               username: this.state.username,
               password: this.state.password, // maybe this is not a good IDEA
-              token: this.state.token
+              token: this.state.token,
+              role: "ROLE_ADMIN" // TODO -- this needs to be set dynamically
             };
             this.props.callback({
               page: pages.main,

@@ -13,6 +13,14 @@ export const pages = {
   stats: "stats"
 };
 
+// an enumeration of all possible user roles
+export const user_roles = {
+  guest: "guest",
+  admin: "ROLE_ADMIN",
+  operator: "ROLE_OPERATOR",
+  user: "ROLE_USER"
+};
+
 // the most general Component that manages the different pages
 class App extends React.Component {
   constructor(props){

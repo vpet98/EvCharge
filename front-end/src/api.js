@@ -27,3 +27,10 @@ export const postLogout = obj => {
   };
   return axios.post(url, null, config);
 }
+
+// call to healthcheck
+// no argument needed
+export const getHealthcheck = () => {
+  const url = '/admin/healthcheck';
+  return axios.get(url);
+}
