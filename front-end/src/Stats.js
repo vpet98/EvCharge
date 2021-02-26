@@ -36,7 +36,7 @@ class Stats extends React.Component{
           <AdminStats />
         )}
         {showStats && this.props.user.role === user_roles.operator &&(
-          <OperatorStats />
+          <OperatorStats user={this.props.user}/>
         )}
         {showStats && this.props.user.role === user_roles.user &&(
           <UserStats />
@@ -47,10 +47,6 @@ class Stats extends React.Component{
 }
 
 class GuestStats extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render(){
     return(
       <>
@@ -112,14 +108,139 @@ class AdminStats extends React.Component {
   }
 }
 
+const res_stations = {
+  stations: ["address1", "address2", "address3"]
+}
+const res_points = {
+  points: ["p1", "p2", "p3", "p4"]
+}
 class OperatorStats extends React.Component {
   constructor(props) {
+    // TODO -- make a real call to the server to get stations
     super(props);
+    var today = new Date();
+    var lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth - 1);
+    this.state = {
+      show_stations: true,
+      show_graph: false,
+      selected_station: null,
+      stations: res_stations.stations,
+      points: res_points.points,
+      switch_checked: false,
+      fDate: today,
+      tDate: lastMonth
+    };
+    this.handleStationBtn = this.handleStationBtn.bind(this);
+    this.StationsGraphSwitch = this.StationsGraphSwitch.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
+  }
+
+  // handle click station button
+  handleStationBtn(e){
+    if(this.state.selected_station !== e.target.name)
+      this.setState({ selected_station: e.target.name });
+    else
+      this.setState({ selected_station: null });
+  }
+
+  // handle click total station performance button
+  StationsGraphSwitch(e){
+    this.setState({
+      show_stations: !this.state.show_stations,
+      show_graph: !this.state.show_graph
+    });
+  }
+
+  showStations(){
+    return this.state.stations.map(station =>
+      <>
+        <button
+          type="button"
+          name={station}
+          onClick={this.handleStationBtn}
+        >
+          {station}
+        </button>
+        {this.state.selected_station === station &&(
+          <div>
+            <button
+              type="button"
+              name={station}
+              onClick={this.StationsGraphSwitch}
+            >
+              total station performance
+            </button>
+            {this.state.points.map(pid =>
+              <button
+                type="button"
+                name={pid}
+                onClick={this.StationsGraphSwitch}
+              >
+                {pid} performance
+              </button>
+            )}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  onInputChange(e){
+    if(e.target.type === "checkbox"){
+      const v = e.target.checked;
+      this.setState({ switch_checked: v});
+    }else{
+      if(e.target.name === "fDate"){
+        const v = e.target.value;
+        this.setState({ fDate: new Date(v) });
+      }
+      else if(e.target.name === "tDate"){
+        const v = e.target.value;
+        this.setState({ tDate: new Date(v) });
+      }
+    }
+  }
+
+  showGraph(){
+    return(
+      <>
+        <button
+          type="button"
+          name="showStations"
+          onClick={this.StationsGraphSwitch}
+        >
+          Show Stations
+        </button>
+        <form>
+          <div className="switch">
+            <label className="switch">
+              charges
+              <input type="checkbox" onChange={this.onInputChange}/>
+              <span className="lever"></span>
+              Kw/h
+            </label>
+          </div>
+          <label>From</label>
+          <input type="date" name="fDate" className="datepicker" onChange={this.onInputChange}/>
+          <label>To</label>
+          <input type="date" name="tDate" className="datepicker" onChange={this.onInputChange}/>
+        </form>
+      </>
+    );
   }
 
   render(){
     return(
-      <h5>Operator Stats</h5>
+      <>
+        <h5>Operator Stats</h5>
+        {this.state.show_stations &&(
+          this.showStations()
+        )}
+        {this.state.show_graph &&(
+          this.showGraph()
+        )}
+      </>
     );
   }
 }
