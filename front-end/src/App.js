@@ -4,11 +4,13 @@ import Banner from './Banner.js';
 import ServicesDiv from './ServicesDiv.js';
 import Footer from './Footer.js';
 import Login from './Login.js';
+import Stats from './Stats.js';
 
 // an enumeration of all possible pages
 export const pages = {
   main: "main",
-  login: "login"
+  login: "login",
+  stats: "stats"
 };
 
 // the most general Component that manages the different pages
@@ -37,12 +39,19 @@ class App extends React.Component {
         <div className="mainPage">
           <Banner user={this.state.user} callback={this.changePage}/>
           <h1>Ev Charge</h1>
-          <ServicesDiv user={this.state.user}/>
+          <ServicesDiv user={this.state.user} callback={this.changePage}/>
           <Footer/>
         </div>
       )}
       {this.state.page === pages.login && (
         <Login callback={this.changePage}/>
+      )}
+      {this.state.page === pages.stats && (
+        <div className="statsPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <Stats user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
       )}
       </div>
     );
