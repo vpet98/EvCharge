@@ -34,3 +34,15 @@ export const getHealthcheck = () => {
   const url = '/admin/healthcheck';
   return axios.get(url);
 }
+
+// call to find stations nearby
+// obj will contain: token, latitude, longitude, radius
+export const getStationsNearby = obj => {
+  const url = '/StationsNearby/' + obj.latitude + '/' + obj.longitude + '/' + obj.radius;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, null, config);
+}
