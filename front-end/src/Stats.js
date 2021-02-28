@@ -1,5 +1,6 @@
 import React from 'react';
 import './Stats.css';
+import TimeSeriesGraph from './TimeSeriesGraph.js';
 import { pages, user_roles } from './App.js';
 import { getHealthcheck } from './api.js';
 
@@ -108,32 +109,37 @@ class AdminStats extends React.Component {
   }
 }
 
-const res_stations = {
-  stations: ["address1", "address2", "address3"]
-}
-const res_points = {
-  points: ["p1", "p2", "p3", "p4"]
-}
 class OperatorStats extends React.Component {
+  graph_objects = {
+    station: "station",
+    point: "point"
+  }
   constructor(props) {
-    // TODO -- make a real call to the server to get stations
     super(props);
-    var today = new Date();
-    var lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth - 1);
+    // TODO -- make a real call to the server to get stations and points
+    var res_stations = {
+      stations: ["address1", "address2", "address3"]
+    }
+    var res_points = {
+      points: ["p1", "p2", "p3", "p4"]
+    }
     this.state = {
       show_stations: true,
       show_graph: false,
       selected_station: null,
       stations: res_stations.stations,
       points: res_points.points,
-      switch_checked: false,
-      fDate: today,
-      tDate: lastMonth
+      graph_object: null,
+      graph_title: "",
+      graph_object_id: null,
+      x_axis: null,
+      y_axis: null
     };
     this.handleStationBtn = this.handleStationBtn.bind(this);
-    this.StationsGraphSwitch = this.StationsGraphSwitch.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
+    this.stationsGraphSwitch = this.stationsGraphSwitch.bind(this);
+    this.pointsGraphSwitch = this.pointsGraphSwitch.bind(this);
+    this.getData = this.getData.bind(this);
+    this.graphSwitch = this.graphSwitch.bind(this);
   }
 
   // handle click station button
@@ -144,17 +150,41 @@ class OperatorStats extends React.Component {
       this.setState({ selected_station: null });
   }
 
-  // handle click total station performance button
-  StationsGraphSwitch(e){
+  graphSwitch(){
     this.setState({
       show_stations: !this.state.show_stations,
-      show_graph: !this.state.show_graph
+      show_graph: !this.state.show_graph,
     });
+  }
+
+  // handle click total station performance button
+  stationsGraphSwitch(e){
+    this.setState({
+      graph_object: this.graph_objects.station,
+      graph_object_id: this.state.selected_station,
+      graph_title: "Stats of Station"
+    });
+    this.graphSwitch();
+  }
+
+  // handle click charging point performance button
+  pointsGraphSwitch(e){
+    this.setState({
+      graph_object: this.graph_objects.point,
+      graph_object_id: e.target.key,
+      graph_title: "Stats of point"
+    });
+    this.graphSwitch();
+  }
+
+  // a function to fetch data from the api and refresh y_axis and y_axis
+  getData({from_date, }){
+    // TODO make api calls to get data
   }
 
   showStations(){
     return this.state.stations.map(station =>
-      <>
+      <div key={station}>
         <button
           type="button"
           name={station}
@@ -167,66 +197,23 @@ class OperatorStats extends React.Component {
             <button
               type="button"
               name={station}
-              onClick={this.StationsGraphSwitch}
+              onClick={this.stationsGraphSwitch}
             >
               total station performance
             </button>
             {this.state.points.map(pid =>
               <button
+                key={pid}
                 type="button"
                 name={pid}
-                onClick={this.StationsGraphSwitch}
+                onClick={this.pointsGraphSwitch}
               >
                 {pid} performance
               </button>
             )}
           </div>
         )}
-      </>
-    );
-  }
-
-  onInputChange(e){
-    if(e.target.type === "checkbox"){
-      const v = e.target.checked;
-      this.setState({ switch_checked: v});
-    }else{
-      if(e.target.name === "fDate"){
-        const v = e.target.value;
-        this.setState({ fDate: new Date(v) });
-      }
-      else if(e.target.name === "tDate"){
-        const v = e.target.value;
-        this.setState({ tDate: new Date(v) });
-      }
-    }
-  }
-
-  showGraph(){
-    return(
-      <>
-        <button
-          type="button"
-          name="showStations"
-          onClick={this.StationsGraphSwitch}
-        >
-          Show Stations
-        </button>
-        <form>
-          <div className="switch">
-            <label className="switch">
-              charges
-              <input type="checkbox" onChange={this.onInputChange}/>
-              <span className="lever"></span>
-              Kw/h
-            </label>
-          </div>
-          <label>From</label>
-          <input type="date" name="fDate" className="datepicker" onChange={this.onInputChange}/>
-          <label>To</label>
-          <input type="date" name="tDate" className="datepicker" onChange={this.onInputChange}/>
-        </form>
-      </>
+      </div>
     );
   }
 
@@ -238,7 +225,14 @@ class OperatorStats extends React.Component {
           this.showStations()
         )}
         {this.state.show_graph &&(
-          this.showGraph()
+          <TimeSeriesGraph
+            graph_object_id={this.graph_object_id}
+            title={this.state.graph_title}
+            x_axis={this.state.x_axis}
+            y_axis={this.state.y_axis}
+            data_callback={this.getData}
+            page_callback={this.graphSwitch}
+          />
         )}
       </>
     );

@@ -5,12 +5,14 @@ import ServicesDiv from './ServicesDiv.js';
 import Footer from './Footer.js';
 import Login from './Login.js';
 import Stats from './Stats.js';
+import SearchStations from './SearchStations.js';
 
 // an enumeration of all possible pages
 export const pages = {
   main: "main",
   login: "login",
-  stats: "stats"
+  stats: "stats",
+  searchStations: "searchStations"
 };
 
 // an enumeration of all possible user roles
@@ -34,7 +36,7 @@ class App extends React.Component {
 
   // a function to change the state (page, user)
   changePage(props){
-    if(props.user !== this.state.user)
+    if(props.hasOwnProperty("user") && props.user !== this.state.user)
       this.setState({ user: props.user });
     if(props.page !== this.state.page)
       this.setState({ page: props.page });
@@ -58,6 +60,13 @@ class App extends React.Component {
         <div className="statsPage">
           <Banner user={this.state.user} callback={this.changePage}/>
           <Stats user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.searchStations &&(
+        <div className="searchStationsPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <SearchStations user={this.state.user} callback={this.changePage}/>
           <Footer/>
         </div>
       )}

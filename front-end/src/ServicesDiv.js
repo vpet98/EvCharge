@@ -7,11 +7,19 @@ class ServicesDiv extends React.Component {
   constructor(props){
     super(props);
     this.handleStats = this.handleStats.bind(this);
+    this.handleSearchStations = this.handleSearchStations.bind(this);
   }
 
   handleStats(e){
     this.props.callback({
       page: pages.stats,
+      user: this.props.user
+    });
+  }
+
+  handleSearchStations(e){
+    this.props.callback({
+      page: pages.searchStations,
       user: this.props.user
     });
   }
@@ -31,7 +39,13 @@ class ServicesDiv extends React.Component {
         </div>
         <div className="find_stations_div">
           <p>Find charging stations nearby</p>
-          <button type="button" name="find_stations">search</button>
+          <button
+            type="button"
+            name="find_stations"
+            onClick={this.handleSearchStations}
+          >
+            search
+          </button>
         </div>
         <div className="charge_div">
           <p>Charge your electric vehicle</p>
