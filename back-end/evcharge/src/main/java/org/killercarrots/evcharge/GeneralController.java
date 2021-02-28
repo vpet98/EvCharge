@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.ChronoUnit;
-import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
@@ -488,7 +488,7 @@ public class GeneralController {
     }
     HashMap<String, String> fields_messages = new HashMap<String, String>();
     fields_messages.put("session", arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
-    fields_messages.put("status", message+"Charging session started succesfully!");
+    fields_messages.put("status", message+"Charging session started successfully!");
     return buildResponse(new PointInfoResponse(fields_messages), format);
   }
 
@@ -561,7 +561,7 @@ public class GeneralController {
     }
     HashMap<String, String> fields_messages = new HashMap<String, String>();
     fields_messages.put("session", arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
-    fields_messages.put("status", message+"Charging session started succesfully!");
+    fields_messages.put("status", message+"Charging session started successfully!");
     return buildResponse(new PointInfoResponse(fields_messages), format);
   }
 
@@ -673,17 +673,16 @@ public class GeneralController {
       return buildResponse(new MessageResponse("Failed to close charging session", "status"), format);
     }
     return buildResponse(new MessageResponse(
-        "Charging completed succesfully. Total cost is "+Double.toString(sessionCost)+"€", "status"), format);
+        "Charging completed successfully! Total cost is "+Double.toString(sessionCost)+"€", "status"), format);
   }
 
 
   // Implementing use case 4: search for nearby station
-  @GetMapping(value="/evcharge/api/StationsNearby/{lat}/{lon}/{radius}")
-  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  @GetMapping(value="/evcharge/api/StationsNearby/{lon}/{lat}/{radius}")
   public ResponseEntity<String> SearchStationsNearby(
   @RequestParam(value = "format", defaultValue = "json") String format,
-	@PathVariable(value = "lat") double lat,
 	@PathVariable(value = "lon") double lon,
+  @PathVariable(value = "lat") double lat,
   @PathVariable(value = "radius") int radius) throws BadRequestException, NoDataException {
     if(lat > 90 || lat < -90 || lon > 180 || lon < -180) {
       throw new BadRequestException("Invalid coordinates");
@@ -696,6 +695,157 @@ public class GeneralController {
     NearbyStationsResponse body = new NearbyStationsResponse(lat, lon, radius);
     body.buildList(ls);
     return buildResponse(body, format);
+  }
+
+
+  // Implementing use case 5: management of stations by operators
+
+  // show stations of operator
+  @GetMapping(value="/evcharge/api/Operator/StationShow/{operator}")
+  @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> showStations(
+  @RequestParam(value = "format", defaultValue = "json") String format,
+	@PathVariable(value = "operator") String operator) throws BadRequestException, NoDataException {
+
+    User user = userRepository.findByUsername(operator)
+        .orElseThrow(() -> new BadRequestException("No such user"));
+    user = userRepository.findByUsername(operator).get();
+    Set<Role> roles = user.getRoles();
+    HashSet<Integer> rids = new HashSet<>();
+    for (Role r : roles)
+      rids.add(r.getId());
+    if (!rids.contains(2))
+      throw new BadRequestException("User is not an operator");
+    HashSet<Station> stations = stationRepository.findByOperator(operator);
+    if(stations.size() == 0) {
+      throw new NoDataException("No available stations for operator: "+operator);
+    }
+
+    return buildResponse(new OperatorStationsResponse(stations), format);
+  }
+
+  // add new station
+  @PostMapping(value="/evcharge/api/Operator/StationAdd")
+  @PreAuthorize("hasRole('OPERATOR')")
+  public ResponseEntity<String> addStation(Authentication auth,
+  @RequestParam(value = "format", defaultValue = "json") String format,
+  @RequestParam(value = "id", defaultValue = "") String id,
+  @RequestParam(value = "cost", defaultValue = "") String costString,
+  @RequestParam(value = "address", defaultValue = "") String address,
+  @RequestParam(value = "country", defaultValue = "") String country,
+  @RequestParam(value = "lon", defaultValue = "") String lonString,
+  @RequestParam(value = "lat", defaultValue = "") String latString,
+  @RequestParam(value = "points", defaultValue = "[]") List<String> pointsString) throws BadRequestException {
+  // list of pointsString is like: ["404_7.0_ac_type2", "101396_7.0_ac_type2"]
+  // so in postman value is: 404_7.0_ac_type2, 101396_7.0_ac_type2
+
+    // check validity of given parameters
+    if (id.equals(""))
+      throw new BadRequestException("Non-empty ID field of station has to be given");
+    double cost;
+    try {
+      cost = Double.valueOf(costString);
+    }
+    catch (Exception e) {
+      throw new BadRequestException("Invalid cost value given");
+    }
+    if (address.equals(""))
+      throw new BadRequestException("Non-empty address field of station has to be given");
+    if (country.equals(""))
+      throw new BadRequestException("Non-empty country field of station has to be given");
+    float lon, lat;
+    try {
+      lon = Float.valueOf(lonString);
+      lat = Float.valueOf(latString);
+    }
+    catch (Exception e) {
+      throw new BadRequestException("Invalid coordinates given");
+    }
+    if(lat > 90 || lat < -90 || lon > 180 || lon < -180)
+      throw new BadRequestException("Invalid coordinates given");
+    if (pointsString.isEmpty())
+      throw new BadRequestException("Non-empty list of points for the station has to be given");
+
+    // check if station ID already exists
+    if (stationRepository.findById(id).isPresent())
+      return buildResponse(new MessageResponse("Station with same ID already exists. If you want to update it, remove it first.",
+                                               "status"), "json");
+    // create new station
+    Station station = new Station();
+    station.setId(id);
+    station.setOperator(auth.getName());
+    station.setCost(cost);
+    SpatialCoordinates coords = new SpatialCoordinates();
+    coords.setType("Point");
+    coords.setCoordinates(new float[]{lon, lat});
+    Location location = new Location();
+    location.setAddress(address);
+    location.setCountry(country);
+    location.setGeo(coords);
+    station.setLocation(location);
+    Set<Point> points = new HashSet<Point>();
+    for (String s : pointsString) {
+      String[] arrOfStr = s.split("_");
+      if (arrOfStr.length != 4)
+        throw new BadRequestException("All points have to be given in form <id>_<power>_<currentType>_<port>");
+      Point p = new Point();
+      int localId;
+      try {
+        localId = Integer.valueOf(arrOfStr[0]);
+      }
+      catch (Exception e) {
+        throw new BadRequestException("Invalid ID given at one of the station's points");
+      }
+      double power;
+      try {
+        power = Double.valueOf(arrOfStr[1]);
+      }
+      catch (Exception e) {
+        throw new BadRequestException("Invalid power value given at one of the station's points");
+      }
+      p.setLocalId(localId);
+      p.setPower(power);
+      p.setType(arrOfStr[2]);
+      p.setPort(arrOfStr[3]);
+      points.add(p);
+    }
+    station.setPoints(points);
+    try {
+      stationRepository.save(station);
+    }
+    catch (Exception e) {
+      return buildResponse(new MessageResponse("Failed to add station", "status"), "json");
+    }
+
+    return buildResponse(new MessageResponse("Station added successfully!", "status"), "json");
+  }
+
+  // delete station
+  @PostMapping(value="/evcharge/api/Operator/StationRemove/{stationId}")
+  @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> removeStation(Authentication auth,
+  @RequestParam(value = "format", defaultValue = "json") String format,
+  @PathVariable(value = "stationId") String stationId) throws BadRequestException {
+
+    Station station = stationRepository.findById(stationId).orElseThrow(() -> new BadRequestException("No such station"));
+    Station stationGet = stationRepository.findById(stationId).get();
+    // admin can delete every station, but an operator only stations he/she owns
+    User user = userRepository.findByUsername(auth.getName()).get();
+    Set<Role> roles = user.getRoles();
+    HashSet<Integer> rids = new HashSet<>();
+    for (Role r : roles)
+      rids.add(r.getId());
+    if (!rids.contains(3))
+      if (!auth.getName().equals(stationGet.getOperator()))
+        return buildResponse(new MessageResponse("You cannot delete station of other operator", "status"), "json");
+    // delete station
+    try {
+      stationRepository.delete(station);
+    }
+    catch (Exception e) {
+      return buildResponse(new MessageResponse("Failed to delete station", "status"), "json");
+    }
+    return buildResponse(new MessageResponse("Station deleted successfully!", "status"), "json");
   }
 
 }

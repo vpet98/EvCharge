@@ -56,6 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/evcharge/test/**").permitAll()
 			.antMatchers("/evcharge/api/admin/resetsessions/**").permitAll()
 			.antMatchers("/evcharge/api/admin/healthcheck/**").permitAll()
+			.antMatchers("/evcharge/api/StationsNearby/**").permitAll()
 			.anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
