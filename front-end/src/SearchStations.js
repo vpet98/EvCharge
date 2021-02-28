@@ -46,7 +46,7 @@ class SearchStations extends React.Component{
     }else if(this.state.radius < 0){
       this.setState({ error: "Radius needs to be positive" });
     }else{
-      // TODO -- this needs some serius fixing
+      // TODO -- this needs some serious fixing
       // let req_params = {
       //   token: this.props.user.token,
       //   latitude: this.state.latitude,
@@ -56,8 +56,8 @@ class SearchStations extends React.Component{
       // getStationsNearby(req_params)
       //   .then(json => {
       //     setTimeout(() => {
+      //       console.log(json);
       //       this.setState({ stations: json.data.Stations });
-      //       console.log(this.state.stations);
       //     }, 0)
       //   })
       //   .catch(err =>{
