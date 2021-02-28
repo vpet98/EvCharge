@@ -47,22 +47,23 @@ class SearchStations extends React.Component{
       this.setState({ error: "Radius needs to be positive" });
     }else{
       // TODO -- this needs some serious fixing
-      // let req_params = {
-      //   token: this.props.user.token,
-      //   latitude: this.state.latitude,
-      //   longitude: this.state.longitude,
-      //   radius: this.state.radius
-      // }
-      // getStationsNearby(req_params)
-      //   .then(json => {
-      //     setTimeout(() => {
-      //       console.log(json);
-      //       this.setState({ stations: json.data.Stations });
-      //     }, 0)
-      //   })
-      //   .catch(err =>{
-      //     this.setState({ error: err.message });
-      //   });
+      let req_params = {
+        token: this.props.user.token,
+        latitude: this.state.latitude,
+        longitude: this.state.longitude,
+        radius: this.state.radius
+      }
+      getStationsNearby(req_params)
+        .then(json => {
+          setTimeout(() => {
+            console.log(json);
+            this.setState({ stations: json.data.Stations });
+          }, 0)
+        })
+        .catch(err =>{
+          this.setState({ error: err.message });
+        });
+      // if we got some data they would be sth like this
       this.setState({ stations: [
             {
                 "StationId": "5f6978b800355e4c01059523",
