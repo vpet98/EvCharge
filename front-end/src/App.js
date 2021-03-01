@@ -1,0 +1,78 @@
+import React from 'react';
+import './App.css';
+import Banner from './Banner.js';
+import ServicesDiv from './ServicesDiv.js';
+import Footer from './Footer.js';
+import Login from './Login.js';
+import Stats from './Stats.js';
+import SearchStations from './SearchStations.js';
+
+// an enumeration of all possible pages
+export const pages = {
+  main: "main",
+  login: "login",
+  stats: "stats",
+  searchStations: "searchStations"
+};
+
+// an enumeration of all possible user roles
+export const user_roles = {
+  guest: "guest",
+  admin: "ROLE_ADMIN",
+  operator: "ROLE_OPERATOR",
+  user: "ROLE_USER"
+};
+
+// the most general Component that manages the different pages
+class App extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      user: props.user,
+      page: pages.main
+    };
+    this.changePage = this.changePage.bind(this);
+  }
+
+  // a function to change the state (page, user)
+  changePage(props){
+    if(props.hasOwnProperty("user") && props.user !== this.state.user)
+      this.setState({ user: props.user });
+    if(props.page !== this.state.page)
+      this.setState({ page: props.page });
+  }
+
+  render(){
+    return (
+      <div className="container">
+      {this.state.page === pages.main && (
+        <div className="mainPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <h1>Ev Charge</h1>
+          <ServicesDiv user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.login && (
+        <Login callback={this.changePage}/>
+      )}
+      {this.state.page === pages.stats && (
+        <div className="statsPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <Stats user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.searchStations &&(
+        <div className="searchStationsPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <SearchStations user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      </div>
+    );
+  }
+}
+
+export default App;
