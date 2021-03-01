@@ -9,7 +9,7 @@ import lombok.Getter;
 public class PointInfoResponse extends MyAbstractObj {
     private Map<String, String> fields_messages = new HashMap<String, String>();
 
-    public PointInfoResponse(HashMap map){
+    public PointInfoResponse(HashMap<String, String> map){
         this.fields_messages = map;
     }
 
