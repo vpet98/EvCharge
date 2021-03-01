@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import './SearchStations.css';
 import { pages } from './App.js';
 import { getStationsNearby } from './api.js';
@@ -10,14 +10,16 @@ class SearchStations extends React.Component{
     this.state = {
       latitude: 34.050745,
       longitude: -118.081014,
-      radius: 1000,
+      radius: 1,
       stations: null,
       map_center: [34.050745, -118.081014],
+      userPosition: null,
       error: ""
     };
     this.handleHome = this.handleHome.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleUserPosition = this.handleUserPosition.bind(this);
   }
 
   // handle click home button
@@ -34,6 +36,18 @@ class SearchStations extends React.Component{
     this.setState({ [name]: value });
   }
 
+  // handle user adding markers event
+  handleUserPosition(e){
+    let lat = e.latlng.lat;
+    let lon = e.latlng.lng;
+    this.setState({
+      latitude: lat,
+      longitude: lon,
+      map_center: [lat, lon],
+      userPosition: [lat, lon],
+    }, () => this.handleSubmit());
+  }
+
   // handle search stations nearby by making an api call
   // if everything is OK then it diplays on the map the stations found
   // else it updates the error message
@@ -46,43 +60,23 @@ class SearchStations extends React.Component{
     }else if(this.state.radius < 0){
       this.setState({ error: "Radius needs to be positive" });
     }else{
-      // TODO -- this needs some serious fixing
       let req_params = {
-        token: this.props.user.token,
         latitude: this.state.latitude,
         longitude: this.state.longitude,
-        radius: this.state.radius
+        radius: this.state.radius * 1000 // transform km to meters
       }
       getStationsNearby(req_params)
         .then(json => {
           setTimeout(() => {
-            console.log(json);
             this.setState({ stations: json.data.Stations });
           }, 0)
         })
         .catch(err =>{
-          this.setState({ error: err.message });
+          if(err.response.data.message)
+            this.setState({ error: err.response.data.message });
+          else
+            this.setState({ error: err.message });
         });
-      // if we got some data they would be sth like this
-      this.setState({ stations: [
-            {
-                "StationId": "5f6978b800355e4c01059523",
-                "Operator": "GreenLots",
-                "Address": "2244 Walnut Grove Ave",
-                "CostPerKWh": 0.4,
-                "Latitude": 34.050743103027344,
-                "Longitude": -118.08101654052734
-            },
-            {
-                "StationId": "5f6978b800355e4c01059551",
-                "Operator": "GreenLots",
-                "Address": "2131 Walnut Grove Ave",
-                "CostPerKWh": 0.8,
-                "Latitude": 34.0533447265625,
-                "Longitude": -118.08415985107422
-            }
-        ]
-      });
       this.setState({ map_center: [this.state.latitude, this.state.longitude] });
     }
   }
@@ -117,7 +111,7 @@ class SearchStations extends React.Component{
             value={this.state.longitude}
             onChange={this.handleInput}
           />
-          <p>Radius</p>
+          <p>Radius (in km)</p>
           <input
             type="number"
             name="radius"
@@ -138,7 +132,9 @@ class SearchStations extends React.Component{
         <Map
           center={this.state.map_center}
           zoom={13}
-          stations={this.state.stations}/>
+          stations={this.state.stations}
+          userPosition={this.state.userPosition}
+          changeUserPositionCallback={this.handleUserPosition}/>
       </>
     );
   }
@@ -152,7 +148,31 @@ function ChangeView({ center, zoom }) {
   return null;
 }
 
-function Map({center, zoom, stations}){
+function UserMarker({position, callback}){
+  useMapEvents({
+    click(e) {
+      callback(e);
+    }
+  })
+  return (
+    <>
+      {position &&(
+        <Marker
+          key={position[0]}
+          position={position}
+          interactive={true}
+        >
+          <Popup>
+            User pin
+            <br />
+          </Popup>
+        </Marker>
+      )}
+    </>
+  )
+}
+
+function Map({center, zoom, stations, userPosition, changeUserPositionCallback}){
   return(
     <div id="mapid" className="map_div" style={{height:"500px"}}>
       <MapContainer
@@ -166,6 +186,7 @@ function Map({center, zoom, stations}){
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <UserMarker position={userPosition} callback={changeUserPositionCallback}/>
         {stations && (
           stations.map(station =>
             <Marker key={station.StationId} position={[station.Latitude, station.Longitude]}>
