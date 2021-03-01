@@ -14,6 +14,7 @@ class SearchStations extends React.Component{
       stations: null,
       map_center: [34.050745, -118.081014],
       userPosition: null,
+      msg: "",
       error: ""
     };
     this.handleHome = this.handleHome.bind(this);
@@ -52,7 +53,7 @@ class SearchStations extends React.Component{
   // if everything is OK then it diplays on the map the stations found
   // else it updates the error message
   handleSubmit(e){
-    this.setState({ error: "" });
+    this.setState({ msg: "", error: "" });
     if(this.state.latitude < -90 || this.state.latitude > 90){
       this.setState({ error: "Invalid coordinates: Latitude needs to be between this bounds: [-90, 90]" });
     }else if(this.state.longitude < -180 || this.state.longitude > 180){
@@ -60,6 +61,7 @@ class SearchStations extends React.Component{
     }else if(this.state.radius < 0){
       this.setState({ error: "Radius needs to be positive" });
     }else{
+      this.setState({ msg: "Searching stations..." });
       let req_params = {
         latitude: this.state.latitude,
         longitude: this.state.longitude,
@@ -68,12 +70,16 @@ class SearchStations extends React.Component{
       getStationsNearby(req_params)
         .then(json => {
           setTimeout(() => {
-            this.setState({ stations: json.data.Stations });
+            this.setState({
+              stations: json.data.Stations,
+              msg: 'Found ' + json.data.Stations.length + ' stations'
+             });
           }, 0)
         })
         .catch(err =>{
+          this.setState({ stations: null });
           if(err.response.data.message)
-            this.setState({ error: err.response.data.message });
+            this.setState({ msg: err.response.data.message });
           else
             this.setState({ error: err.message });
         });
@@ -127,6 +133,7 @@ class SearchStations extends React.Component{
           >
             Search
           </button>
+          <p>{this.state.msg}</p>
           <p>{this.state.error}</p>
         </div>
         <Map
@@ -142,9 +149,9 @@ class SearchStations extends React.Component{
 
 export default SearchStations;
 
-function ChangeView({ center, zoom }) {
+function ChangeView({ center }) {
   const map = useMap();
-  map.setView(center, zoom);
+  map.setView(center);
   return null;
 }
 

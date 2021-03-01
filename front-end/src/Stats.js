@@ -110,7 +110,7 @@ class AdminStats extends React.Component {
 }
 
 class OperatorStats extends React.Component {
-  graph_objects = {
+  graph_object_types = {
     station: "station",
     point: "point"
   }
@@ -129,11 +129,16 @@ class OperatorStats extends React.Component {
       selected_station: null,
       stations: res_stations.stations,
       points: res_points.points,
+      graph_object_type: null,
       graph_object: null,
       graph_title: "",
-      graph_object_id: null,
       x_axis: null,
-      y_axis: null
+      y_axis: null,
+      x_axis_title: "",
+      y_axis_title: "",
+      graph_aggregate: null,
+      msg: "",
+      error: ""
     };
     this.handleStationBtn = this.handleStationBtn.bind(this);
     this.stationsGraphSwitch = this.stationsGraphSwitch.bind(this);
@@ -160,9 +165,8 @@ class OperatorStats extends React.Component {
   // handle click total station performance button
   stationsGraphSwitch(e){
     this.setState({
-      graph_object: this.graph_objects.station,
-      graph_object_id: this.state.selected_station,
-      graph_title: "Stats of Station"
+      graph_object: e,
+      graph_object_type: this.graph_object_types.station
     });
     this.graphSwitch();
   }
@@ -170,16 +174,48 @@ class OperatorStats extends React.Component {
   // handle click charging point performance button
   pointsGraphSwitch(e){
     this.setState({
-      graph_object: this.graph_objects.point,
-      graph_object_id: e.target.key,
-      graph_title: "Stats of point"
+      graph_object: e,
+      graph_object_type: this.graph_object_types.point
     });
     this.graphSwitch();
   }
 
   // a function to fetch data from the api and refresh y_axis and y_axis
-  getData({from_date, }){
+  getData({from_date, to_date, graph_kw}){
     // TODO make api calls to get data
+    if(this.state.graph_object_type === this.graph_object_types.station){
+      // Collect data for all the charging points of this station
+      let SessionsPerStation_res = {
+                                      StationID: "5f6978b800355e4c01059581",
+                                      Operator: "ChargePoint (Coulomb Technologies)",
+                                      RequestTimestamp: "2021-02-26 02:01:28",
+                                      PeriodFrom: "2019-12-07 00:00:00",
+                                      PeriodTo: "2019-12-10 23:59:59",
+                                      TotalEnergyDelivered: 4.438,
+                                      NumberOfChargingSessions: 1,
+                                      NumberOfActivePoints: 1,
+                                      SessionsSummaryList: [
+                                          {
+                                              PointID: "5f6978b800355e4c01059581_15293",
+                                              PointSessions: 1,
+                                              EnergyDelivered: 4.438
+                                          }
+                                      ]
+                                  };
+      let xs = SessionsPerStation_res.SessionsSummaryList.map(p => p.PointID);
+      let ys = SessionsPerStation_res.SessionsSummaryList.map(p => graph_kw ? p.EnergyDelivered : p.PointSessions);
+      let total = graph_kw ? SessionsPerStation_res.TotalEnergyDelivered : SessionsPerStation_res.NumberOfChargingSessions;
+      this.setState({
+        x_axis: xs,
+        y_axis: ys,
+        x_axis_title: "point Ids",
+        y_axis_title: graph_kw ? "Energy delivered" : "Number of charging sessions",
+        graph_title: graph_kw ? "Energy delivered at every point" : "Charging sessions at every point",
+        graph_aggregate: total
+      });
+    }else if (this.state.graph_object_type === this.graph_object_types.point) {
+
+    }
   }
 
   showStations(){
@@ -192,6 +228,8 @@ class OperatorStats extends React.Component {
         >
           {station}
         </button>
+        <p>{ this.state.msg }</p>
+        <p>{ this.state.error }</p>
         {this.state.selected_station === station &&(
           <div>
             <button
@@ -226,10 +264,12 @@ class OperatorStats extends React.Component {
         )}
         {this.state.show_graph &&(
           <TimeSeriesGraph
-            graph_object_id={this.graph_object_id}
             title={this.state.graph_title}
             x_axis={this.state.x_axis}
             y_axis={this.state.y_axis}
+            x_axis_title={this.state.x_axis_title}
+            y_axis_title={this.state.y_axis_title}
+            graph_aggregate={this.state.graph_aggregate}
             data_callback={this.getData}
             page_callback={this.graphSwitch}
           />
