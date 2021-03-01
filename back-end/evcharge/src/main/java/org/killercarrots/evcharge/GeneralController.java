@@ -678,7 +678,7 @@ public class GeneralController {
 
 
   // Implementing use case 4: search for nearby station
-  @GetMapping(value="/evcharge/api/StationsNearby/{lon}/{lat}/{radius}")
+  @GetMapping(value="/evcharge/api/StationsNearby/{lat}/{lon}/{radius}")
   public ResponseEntity<String> SearchStationsNearby(
   @RequestParam(value = "format", defaultValue = "json") String format,
 	@PathVariable(value = "lon") double lon,
