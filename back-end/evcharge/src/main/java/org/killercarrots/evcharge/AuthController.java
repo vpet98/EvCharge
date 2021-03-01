@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,6 +30,7 @@ import org.killercarrots.evcharge.auth.*;
 import org.killercarrots.evcharge.models.User;
 import org.killercarrots.evcharge.models.Role;
 import org.killercarrots.evcharge.models.MessageResponse;
+import org.killercarrots.evcharge.models.PointInfoResponse;
 import org.killercarrots.evcharge.models.ERole;
 import org.killercarrots.evcharge.models.LoginRequest;
 
@@ -56,7 +58,7 @@ public class AuthController {
     RoleRepository roleRepository;
 
     ///////////////////////////////////////////////////////////
-    @PostMapping(value = "/evcharge/api/login", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+  @PostMapping(value = "/evcharge/api/login", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
 	public ResponseEntity<?> authenticateUser(@RequestParam(value = "format", defaultValue = "json") String format, LoginRequest loginRequest) {
 
 		Authentication authentication = authenticationManager.authenticate(
@@ -68,7 +70,21 @@ public class AuthController {
 		User user = userRepository.findById(loginRequest.getUsername()).get();
 		user.setToken(jwt);
 		userRepository.save(user);
-		return GeneralController.buildResponse(new MessageResponse(jwt, "token"), format);//, "token.csv");
+		Set<Role> roles = user.getRoles();
+		String printRoles = "";
+		for (Role r : roles) {
+			if (r.getId() == 3)
+				printRoles += "\"admin\",";
+			else if (r.getId() == 2)
+				printRoles += "\"operator\",";
+			else if (r.getId() == 1)
+				printRoles += "\"user\",";
+		}
+		printRoles = "[" + printRoles.substring(0, printRoles.length() - 1) + "]";
+		HashMap<String, String> map = new HashMap<>();
+		map.put("token", jwt);
+		map.put("roles", printRoles);
+		return GeneralController.buildResponse(new PointInfoResponse(map), format);
 	}
 
 
