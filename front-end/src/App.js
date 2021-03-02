@@ -16,7 +16,6 @@ export const pages = {
 };
 
 // an enumeration of all possible user roles
-// TODO this needs to be solved (user roles names)
 export const user_roles = {
   guest: "guest",
   admin: "admin",

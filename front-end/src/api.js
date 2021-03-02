@@ -62,10 +62,22 @@ const yyyymmdd = date => {
          ].join('');
 }
 
-// call to find vharging sessions per station id
+// call to find charging sessions per station id
 // obj holds station id, date from, date to, operator token
 export const getSessionsPerStation = obj => {
   const url = 'SessionsPerStation/' + obj.StationId + '/' + yyyymmdd(obj.fDate) + '/' + yyyymmdd(obj.tDate);
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+// call to find charging sessions per point id
+// obj holds station id, point id, date from, date to, operator token
+export const getSessionsPerPoint = obj => {
+  const url = 'SessionsPerPoint/' + obj.StationId + '_' + obj.PointId + '/' + yyyymmdd(obj.fDate) + '/' + yyyymmdd(obj.tDate);
   const config = {
     headers: {
       'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token

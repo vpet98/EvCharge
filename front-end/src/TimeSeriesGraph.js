@@ -27,13 +27,11 @@ class TimeSeriesGraph extends React.Component{
 
   // a function to handle the changes of the values of fDate input
   handleFDateInput(date){
-    console.log(date);
     this.setState({ fDate: date });
   }
 
   // a function to handle the changes of the values of tDate input
   handleTDateInput(date){
-    console.log(date);
     this.setState({ tDate: date });
   }
 
