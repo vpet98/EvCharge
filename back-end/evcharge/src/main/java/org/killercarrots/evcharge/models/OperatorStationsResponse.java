@@ -47,7 +47,7 @@ public class OperatorStationsResponse extends MyAbstractObj {
             stationPrint += "{\"PointId\":"+p.getLocalId()+","+
                                "\"Power\":"+p.getPower()+","+
                                "\"CurrentType\":\""+p.getType()+"\","+
-                               "\"Port\":\""+p.getPort()+"\","+"},";
+                               "\"Port\":\""+p.getPort()+"\""+"},";
           stationPrint = stationPrint.substring(0, stationPrint.length() - 1);
           stationPrint += "]},";
         }
