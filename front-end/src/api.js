@@ -38,21 +38,8 @@ export const getHealthcheck = () => {
 // call to find stations nearby
 // obj will contain: token, latitude, longitude, radius
 export const getStationsNearby = obj => {
-  const url = '/StationsNearby';
-  const params = {
-    params: {
-      lat: obj.latitude,
-      lon: obj.longitude,
-      radius: obj.radius
-    }
-  };
-  const config = {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
-    }
-  };
-  return axios.get(url, params, config);
+  const url = '/StationsNearby/' + obj.latitude + '/' + obj.longitude + '/' + obj.radius;
+  return axios.get(url);
 }
 
 // call to get protocol-cost tuples
