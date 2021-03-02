@@ -8,11 +8,11 @@ import qs from 'qs';
 axios.defaults.baseURL = config.apiUrl;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
-// call to login and get token
-// obj is the user object to login
-export const postLoginToken = obj => {
+// call to login and get user data like token
+// user is the user object to login
+export const postLoginUser = user => {
   const url = '/login';
-  const data = qs.stringify(obj);
+  const data = qs.stringify(user);
   return axios.post(url, data);
 }
 
@@ -40,4 +40,36 @@ export const getHealthcheck = () => {
 export const getStationsNearby = obj => {
   const url = '/StationsNearby/' + obj.latitude + '/' + obj.longitude + '/' + obj.radius;
   return axios.get(url);
+}
+
+// call to find stations and points of a stations operator user
+export const getStationShow = user => {
+  const url = '/Operator/StationShow/' + user.username;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + user.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+const yyyymmdd = date => {
+  var mm = date.getMonth() + 1; // getMonth() is zero-based
+  var dd = date.getDate();
+  return [date.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('');
+}
+
+// call to find vharging sessions per station id
+// obj holds station id, date from, date to, operator token
+export const getSessionsPerStation = obj => {
+  const url = 'SessionsPerStation/' + obj.StationId + '/' + yyyymmdd(obj.fDate) + '/' + yyyymmdd(obj.tDate);
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, config);
 }

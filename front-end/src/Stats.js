@@ -2,7 +2,7 @@ import React from 'react';
 import './Stats.css';
 import TimeSeriesGraph from './TimeSeriesGraph.js';
 import { pages, user_roles } from './App.js';
-import { getHealthcheck } from './api.js';
+import { getHealthcheck, getStationShow, getSessionsPerStation } from './api.js';
 
 // the stats page component
 class Stats extends React.Component{
@@ -116,19 +116,12 @@ class OperatorStats extends React.Component {
   }
   constructor(props) {
     super(props);
-    // TODO -- make a real call to the server to get stations and points
-    var res_stations = {
-      stations: ["address1", "address2", "address3"]
-    }
-    var res_points = {
-      points: ["p1", "p2", "p3", "p4"]
-    }
     this.state = {
-      show_stations: true,
+      show_stations: false,
       show_graph: false,
       selected_station: null,
-      stations: res_stations.stations,
-      points: res_points.points,
+      stations: null,
+      points: null,
       graph_object_type: null,
       graph_object: null,
       graph_title: "",
@@ -137,9 +130,10 @@ class OperatorStats extends React.Component {
       x_axis_title: "",
       y_axis_title: "",
       graph_aggregate: null,
-      msg: "",
+      msg: "Searching stations...",
       error: ""
     };
+
     this.handleStationBtn = this.handleStationBtn.bind(this);
     this.stationsGraphSwitch = this.stationsGraphSwitch.bind(this);
     this.pointsGraphSwitch = this.pointsGraphSwitch.bind(this);
@@ -147,16 +141,69 @@ class OperatorStats extends React.Component {
     this.graphSwitch = this.graphSwitch.bind(this);
   }
 
+  // once the page is ready search stations
+  componentDidMount(){
+    // TODO -- make a real call to the server to get stations and points
+    getStationShow(this.props.user)
+      .then(json => {
+        setTimeout(() =>{
+          this.setState({
+            msg: 'You have ' + json.data.NumberOfStations + ' stations',
+            stations: [{
+                StationId: "5f69790300355e4c0105fe0a",
+                Operator: "GreenLots",
+                Address: "5991 Cattleridge Blvd",
+                Country: "United States",
+                Latitude: 27.300522,
+                Longitude: -82.45103,
+                CostPerKWh: 0.9,
+                PointsList: [
+                  {
+                    PointId: 62033,
+                    Power: 40.0,
+                    CurrentType: "dc",
+                    Port: "chademo",
+                  },
+                  {
+                    PointId: 62034,
+                    Power: 40.0,
+                    CurrentType: "dc",
+                    Port: "ccs",
+                  }
+                ]
+              }],//json.data.StationsList,
+          show_stations: true
+          });
+        }, 0)
+      })
+      .catch(err => {
+        this.setState({
+          msg: "Sorry. We got a problem",
+          error: err.toString()
+        });
+      });
+  }
+
   // handle click station button
   handleStationBtn(e){
-    if(this.state.selected_station !== e.target.name)
-      this.setState({ selected_station: e.target.name });
-    else
-      this.setState({ selected_station: null });
+    if(!this.state.selected_station || this.state.selected_station.StationId !== e.target.name){
+      let target_station = this.state.stations.filter(station => {return station.StationId === e.target.name})[0];
+      this.setState({
+        points: target_station.PointsList,
+        selected_station: target_station,
+      });
+    }else{
+      this.setState({
+        selected_station: null,
+        points: null
+      });
+    }
   }
 
   graphSwitch(){
     this.setState({
+      msg: "",
+      error: "",
       show_stations: !this.state.show_stations,
       show_graph: !this.state.show_graph,
     });
@@ -164,19 +211,35 @@ class OperatorStats extends React.Component {
 
   // handle click total station performance button
   stationsGraphSwitch(e){
-    this.setState({
-      graph_object: e,
-      graph_object_type: this.graph_object_types.station
-    });
+    let target_station = this.state.stations.filter(station => {return station.StationId === e.target.name})[0];
+    if(this.state.graph_object !== target_station)
+      this.setState({
+        graph_object: target_station,
+        graph_object_type: this.graph_object_types.station,
+        graph_title: "",
+        x_axis: null,
+        y_axis: null,
+        x_axis_title: "",
+        y_axis_title: "",
+        graph_aggregate: null
+      });
     this.graphSwitch();
   }
 
   // handle click charging point performance button
   pointsGraphSwitch(e){
-    this.setState({
-      graph_object: e,
-      graph_object_type: this.graph_object_types.point
-    });
+    let target_point = this.state.points.filter(point => {return point.PointId === e.target.name})[0];
+    if(this.state.graph_object !== target_point)
+      this.setState({
+        graph_object: target_point,
+        graph_object_type: this.graph_object_types.point,
+        graph_title: "",
+        x_axis: null,
+        y_axis: null,
+        x_axis_title: "",
+        y_axis_title: "",
+        graph_aggregate: null
+      });
     this.graphSwitch();
   }
 
@@ -184,34 +247,39 @@ class OperatorStats extends React.Component {
   getData({from_date, to_date, graph_kw}){
     // TODO make api calls to get data
     if(this.state.graph_object_type === this.graph_object_types.station){
-      // Collect data for all the charging points of this station
-      let SessionsPerStation_res = {
-                                      StationID: "5f6978b800355e4c01059581",
-                                      Operator: "ChargePoint (Coulomb Technologies)",
-                                      RequestTimestamp: "2021-02-26 02:01:28",
-                                      PeriodFrom: "2019-12-07 00:00:00",
-                                      PeriodTo: "2019-12-10 23:59:59",
-                                      TotalEnergyDelivered: 4.438,
-                                      NumberOfChargingSessions: 1,
-                                      NumberOfActivePoints: 1,
-                                      SessionsSummaryList: [
-                                          {
-                                              PointID: "5f6978b800355e4c01059581_15293",
-                                              PointSessions: 1,
-                                              EnergyDelivered: 4.438
-                                          }
-                                      ]
-                                  };
-      let xs = SessionsPerStation_res.SessionsSummaryList.map(p => p.PointID);
-      let ys = SessionsPerStation_res.SessionsSummaryList.map(p => graph_kw ? p.EnergyDelivered : p.PointSessions);
-      let total = graph_kw ? SessionsPerStation_res.TotalEnergyDelivered : SessionsPerStation_res.NumberOfChargingSessions;
-      this.setState({
-        x_axis: xs,
-        y_axis: ys,
-        x_axis_title: "point Ids",
-        y_axis_title: graph_kw ? "Energy delivered" : "Number of charging sessions",
-        graph_title: graph_kw ? "Energy delivered at every point" : "Charging sessions at every point",
-        graph_aggregate: total
+      let req_obj = {
+        StationId: this.state.graph_object.StationId,
+        fDate: from_date,
+        tDate: to_date,
+        token: this.props.user.token
+      };
+      getSessionsPerStation(req_obj)
+      .then(json => {
+        setTimeout(() =>{
+          let xs = json.data.SessionsSummaryList.map(p => p.PointID);
+          let ys = json.data.SessionsSummaryList.map(p => graph_kw ? p.EnergyDelivered : p.PointSessions);
+          let total = graph_kw ? json.data.TotalEnergyDelivered : json.data.NumberOfChargingSessions;
+          this.setState({
+            x_axis: xs,
+            y_axis: ys,
+            x_axis_title: "point Ids",
+            y_axis_title: graph_kw ? "Energy delivered" : "Number of charging sessions",
+            graph_title: graph_kw ? "Energy delivered at every point" : "Charging sessions at every point",
+            graph_aggregate: total
+          });
+        }, 0)
+      })
+      .catch(err => {
+        if(err.response.status === 402)
+          this.setState({
+            msg: err.response.data.message,
+            error: ""
+          });
+        else
+          this.setState({
+            msg: "Sorry. We got a problem",
+            error: err.toString()
+          });
       });
     }else if (this.state.graph_object_type === this.graph_object_types.point) {
 
@@ -220,33 +288,31 @@ class OperatorStats extends React.Component {
 
   showStations(){
     return this.state.stations.map(station =>
-      <div key={station}>
+      <div key={station.StationId}>
         <button
           type="button"
-          name={station}
+          name={station.StationId}
           onClick={this.handleStationBtn}
         >
-          {station}
+          {station.Address}
         </button>
-        <p>{ this.state.msg }</p>
-        <p>{ this.state.error }</p>
         {this.state.selected_station === station &&(
           <div>
             <button
               type="button"
-              name={station}
+              name={station.StationId}
               onClick={this.stationsGraphSwitch}
             >
               total station performance
             </button>
-            {this.state.points.map(pid =>
+            {this.state.points.map(point =>
               <button
-                key={pid}
+                key={point.PointId}
                 type="button"
-                name={pid}
+                name={point.PointId}
                 onClick={this.pointsGraphSwitch}
               >
-                {pid} performance
+                point {point.PointId}
               </button>
             )}
           </div>
@@ -259,6 +325,8 @@ class OperatorStats extends React.Component {
     return(
       <>
         <h5>Operator Stats</h5>
+        <p>{ this.state.msg }</p>
+        <p>{ this.state.error }</p>
         {this.state.show_stations &&(
           this.showStations()
         )}
