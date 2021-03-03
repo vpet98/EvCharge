@@ -1,7 +1,7 @@
 import React from 'react';
 import './Login.css';
-import {pages} from './App.js';
-import {postLoginToken} from './api.js';
+import {pages} from '../app_essentials/App.js';
+import {postLoginUser} from '../api_comm/api.js';
 
 // the login page component
 class Login extends React.Component{
@@ -10,8 +10,7 @@ class Login extends React.Component{
     this.state = {
       username: "",
       password: "",
-      error: null,
-      token: null
+      error: null
     };
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -39,15 +38,14 @@ class Login extends React.Component{
         username: this.state.username,
         password: this.state.password
       };
-      postLoginToken(reqObj)
+      postLoginUser(reqObj)
         .then(json => {
           setTimeout(() => {
-            this.setState({ token: json.data.token });
             let finalUser = {
               username: this.state.username,
               password: this.state.password, // maybe this is not a good IDEA
-              token: this.state.token,
-              role: "ROLE_OPERATOR" // TODO -- this needs to be set dynamically
+              token: json.data.token,
+              role: json.data.roles[0]
             };
             this.props.callback({
               page: pages.main,

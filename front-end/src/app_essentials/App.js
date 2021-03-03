@@ -3,23 +3,30 @@ import './App.css';
 import Banner from './Banner.js';
 import ServicesDiv from './ServicesDiv.js';
 import Footer from './Footer.js';
-import Login from './Login.js';
-import Stats from './Stats.js';
-import SearchStations from './SearchStations.js';
+import Login from '../login/Login.js';
+import Stats from '../stats/Stats.js';
+import SearchStations from '../search_stations/SearchStations.js';
+import ChargeVehicle from '../charge_vehicle/ChargeVehicle.js'
+import FinishChargeVehicle from '../charge_vehicle/FinishChargeVehicle.js'
+import StationsManage from '../manage_stations/StationsManage.js'
 
 // an enumeration of all possible pages
 export const pages = {
   main: "main",
   login: "login",
   stats: "stats",
-  searchStations: "searchStations"
+  searchStations: "searchStations",
+  //K charge+inspect
+  begin_charge: "begin_charge",
+  finish_charge: "finish_charge",
+  stations: "stations"
 };
 
 // an enumeration of all possible user roles
 export const user_roles = {
   guest: "guest",
-  admin: "ROLE_ADMIN",
-  operator: "ROLE_OPERATOR",
+  admin: "admin",
+  operator: "operator",
   user: "ROLE_USER"
 };
 
@@ -67,6 +74,27 @@ class App extends React.Component {
         <div className="searchStationsPage">
           <Banner user={this.state.user} callback={this.changePage}/>
           <SearchStations user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.begin_charge &&(
+        <div className="chargingPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <ChargeVehicle user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.finish_charge &&(
+        <div className="finishChargingPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <FinishChargeVehicle user={this.state.user} callback={this.changePage}/>
+          <Footer/>
+        </div>
+      )}
+      {this.state.page === pages.stations &&(
+        <div className="stationsPage">
+          <Banner user={this.state.user} callback={this.changePage}/>
+          <StationsManage user={this.state.user} callback={this.changePage}/>
           <Footer/>
         </div>
       )}

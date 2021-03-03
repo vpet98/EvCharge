@@ -1,7 +1,7 @@
 import React from 'react';
 import './Banner.css';
 import { pages } from './App.js';
-import { postLogout } from './api.js';
+import { postLogout } from '../api_comm/api.js';
 
 // A banner component
 class Banner extends React.Component{
