@@ -19,7 +19,7 @@ class OperatorStats extends React.Component {
       points: null,
       graph_object_type: null,
       graph_object: null,
-      msg: "Searching stations...",
+      msg: "",
       number_of_stations: 0,
       error: "",
       graph_options: null
@@ -50,7 +50,7 @@ class OperatorStats extends React.Component {
 
   // once the page is ready search stations
   componentDidMount(){
-    this.setState({ error: "" });
+    this.setState({ msg: "Searching stations...", error: "" });
     getStationShow(this.props.user)
     .then(json => {
       setTimeout(() =>{
@@ -145,7 +145,7 @@ class OperatorStats extends React.Component {
     return [axis_x, axis_y];
   }
 
-  // a function to fetch data from the api and refresh y_axis and y_axis
+  // a function to fetch data from the api and refresh graph_options
   getData({from_date, to_date, graph_kw}){
     this.setState({ graph_options: null, error: "", msg: "Fetching data..." });
     if(this.state.graph_object_type === this.graph_object_types.station){
@@ -247,10 +247,8 @@ class OperatorStats extends React.Component {
           <>
             <p>{ this.state.msg }</p>
             <p>{ this.state.error }</p>
+            {this.showStations()}
           </>
-        )}
-        {this.state.show_stations &&(
-          this.showStations()
         )}
         {this.state.show_graph &&(
           <TimeSeriesGraph
@@ -259,6 +257,7 @@ class OperatorStats extends React.Component {
             graph_options={this.state.graph_options}
             msg={this.state.msg}
             error={this.state.error}
+            secondDataName="# of charges"
           />
         )}
       </>

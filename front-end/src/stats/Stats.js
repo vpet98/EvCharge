@@ -42,7 +42,7 @@ class Stats extends React.Component{
           <OperatorStats user={this.props.user}/>
         )}
         {showStats && this.props.user.role === user_roles.user &&(
-          <UserStats />
+          <UserStats user={this.props.user}/>
         )}
       </>
     );

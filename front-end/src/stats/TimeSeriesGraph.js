@@ -64,7 +64,7 @@ class TimeSeriesGraph extends React.Component{
         <form>
           <div className="switch">
             <label className="switch">
-              charges
+              {this.props.secondDataName}
               <input type="checkbox" checked={this.state.switch_checked} onChange={this.handleCheckboxInput}/>
               <span className="lever"></span>
               Kw/h

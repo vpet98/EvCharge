@@ -27,7 +27,7 @@ export const user_roles = {
   guest: "guest",
   admin: "admin",
   operator: "operator",
-  user: "ROLE_USER"
+  user: "user"
 };
 
 // the most general Component that manages the different pages
