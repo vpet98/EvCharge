@@ -1,8 +1,8 @@
 import React from 'react';
 import './Stats.css';
 import TimeSeriesGraph from './TimeSeriesGraph.js';
-import { pages, user_roles } from './App.js';
-import { getHealthcheck, getStationShow, getSessionsPerStation, getSessionsPerPoint } from './api.js';
+import { pages, user_roles } from '../app_essentials/App.js';
+import { getHealthcheck, getStationShow, getSessionsPerStation, getSessionsPerPoint } from '../api_comm/api.js';
 
 // the stats page component
 class Stats extends React.Component{

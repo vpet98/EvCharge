@@ -1,7 +1,7 @@
 import React from 'react';
 import './Login.css';
-import {pages} from './App.js';
-import {postLoginUser} from './api.js';
+import {pages} from '../app_essentials/App.js';
+import {postLoginUser} from '../api_comm/api.js';
 
 // the login page component
 class Login extends React.Component{

@@ -42,6 +42,33 @@ export const getStationsNearby = obj => {
   return axios.get(url);
 }
 
+// call to get protocol-cost tuples
+// obj will contain: token, vehicle, station_point
+export const getSessionCost = obj => {
+  const url = '/SessionCost/'+obj.vehicle+'/'+obj.station_point;
+  const config = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+// call to start charging session
+// obj will contain: token, vehicle, station_point, cost or amount
+export const startSession = obj => {
+  const url1 = '/StartSessionCost/'+obj.vehicle+'/'+obj.station_point+'/'+obj.cost;
+  const url2 = '/StartSessionAmount/'+obj.vehicle+'/'+obj.station_point+'/'+obj.amount;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  const url = obj.cost ? url1 : url2;
+  return axios.post(url, null, config);
+}
+
 // call to find stations and points of a stations operator user
 export const getStationShow = user => {
   const url = '/Operator/StationShow/' + user.username;
