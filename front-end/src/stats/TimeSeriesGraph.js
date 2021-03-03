@@ -1,6 +1,7 @@
 import React from 'react';
 import './TimeSeriesGraph.css';
 import DatePicker from "react-datepicker";
+import CanvasJSReact from './assets/canvasjs.react';
 import "react-datepicker/dist/react-datepicker.css";
 
 
@@ -12,17 +13,19 @@ class TimeSeriesGraph extends React.Component{
     var lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     this.state = {
-      show_graph: false,
       switch_checked: true,
       fDate: lastMonth,
       tDate: today,
-      msg: "",
-      error: ""
     };
     this.handleCheckboxInput = this.handleCheckboxInput.bind(this);
     this.handleFDateInput = this.handleFDateInput.bind(this);
     this.handleTDateInput = this.handleTDateInput.bind(this);
     this.makeGraph = this.makeGraph.bind(this);
+  }
+
+  // make graph as soon as the component render
+  componentDidMount(){
+    // this.makeGraph();
   }
 
   // a function to handle the changes of the values of fDate input
@@ -93,16 +96,42 @@ class TimeSeriesGraph extends React.Component{
         >
           Graph Stats
         </button>
-        <p>{this.state.msg}</p>
-        <p>{this.state.error}</p>
-        <p>{this.props.title}</p>
-        <p>{this.props.x_axis_title}</p>
-        <p>{this.props.x_axis}</p>
-        <p>{this.props.y_axis_title}</p>
-        <p>{this.props.y_axis}</p>
-        <p>{this.props.graph_aggregate}</p>
+        <p>{this.props.msg}</p>
+        <p>{this.props.error}</p>
+        {this.props.graph_options && (
+          <>
+            <p>Graph integral: {this.props.graph_options.graph_aggregate}</p>
+            <Graph graph_options={this.props.graph_options}/>
+          </>
+        )}
       </div>
     );
+  }
+}
+
+var CanvasJSChart = CanvasJSReact.CanvasJSChart;
+class Graph extends React.Component{
+  mergeData(x_axis, y_axis){
+    return x_axis.map((e, i) => ({ label: e, y: y_axis[i] }))
+  }
+
+  render(){
+    const options = {
+  			title: { text: this.props.graph_options.graph_title },
+        axisX: { title: this.props.graph_options.x_axis_title },
+        axisY: { title: this.props.graph_options.y_axis_title },
+  			data: [
+    			{
+    				type: "column",
+    				dataPoints: this.mergeData(this.props.graph_options.x_axis, this.props.graph_options.y_axis)
+    			}
+  			]
+  		};
+      return (
+  		<div>
+  			<CanvasJSChart options = {options} />
+  		</div>
+		);
   }
 }
 
