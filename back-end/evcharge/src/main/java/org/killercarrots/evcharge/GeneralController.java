@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
@@ -599,6 +600,11 @@ public class GeneralController {
       if (currentCost / station.getCost() > s.getKWhRequested())
         currentCost = station.getCost() * s.getKWhRequested();
       DecimalFormat df = new DecimalFormat("0.00");
+      //K
+      DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+      dfs.setDecimalSeparator('.');
+      df.setDecimalFormatSymbols(dfs);
+
       currentCost = Double.parseDouble(df.format(currentCost));
       // put to map
       map.put(s.getId(), currentCost);
@@ -660,6 +666,11 @@ public class GeneralController {
       kWhDelivered = vehicleRepository.findById(session.getVehicleId()).get().getBatterySize();
     double sessionCost = kWhDelivered * session.getCostPerKWh();
     DecimalFormat df = new DecimalFormat("0.00");
+    //K
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+    dfs.setDecimalSeparator('.');
+    df.setDecimalFormatSymbols(dfs);
+    
     kWhDelivered = Double.parseDouble(df.format(kWhDelivered));
     sessionCost = Double.parseDouble(df.format(sessionCost));
     chargeEvent.setKWhDelivered(kWhDelivered);

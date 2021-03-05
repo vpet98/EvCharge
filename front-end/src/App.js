@@ -16,7 +16,6 @@ export const pages = {
   login: "login",
   stats: "stats",
   searchStations: "searchStations",
-  //K charge+inspect
   begin_charge: "begin_charge",
   finish_charge: "finish_charge",
   stations: "stations"
