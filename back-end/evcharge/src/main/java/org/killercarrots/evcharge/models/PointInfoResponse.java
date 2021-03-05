@@ -30,7 +30,9 @@ public class PointInfoResponse extends MyAbstractObj {
     public String toJson() {
       String out = "";
       for (String s : fields_messages.keySet())
-        out += "\"" + s + "\": \"" + fields_messages.get(s) + "\", ";
+        if (fields_messages.get(s).charAt(0) == '[' || s.equals("cost"))
+          out += "\"" + s + "\": " + fields_messages.get(s) + ", ";
+        else out += "\"" + s + "\": \"" + fields_messages.get(s) + "\", ";
       out = out.substring(0, out.length() - 2);
       return "{" + out + "}";
     }

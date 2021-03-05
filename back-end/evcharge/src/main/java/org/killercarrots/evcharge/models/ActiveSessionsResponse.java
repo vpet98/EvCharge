@@ -28,7 +28,7 @@ public class ActiveSessionsResponse extends MyAbstractObj {
     public String toJson() {
         String ses = "";
         for (String k : this.sessions.keySet())
-          ses += "{\"SessionID\":" +  "\"" + k + "\",\"CurrentCost\":" + "\"" + Double.toString(this.sessions.get(k)) + "\"},";
+          ses += "{\"SessionID\":" +  "\"" + k + "\",\"CurrentCost\":" + Double.toString(this.sessions.get(k)) + "},";
         ses = ses.substring(0, ses.length() - 1);
         String ret = "{\"NumberOfActiveSessions\":"+String.valueOf(this.sessionsNum)+","+
                         "\"ActiveSessionsList\":["+ses+"]}";

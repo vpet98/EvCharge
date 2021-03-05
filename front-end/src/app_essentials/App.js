@@ -3,12 +3,12 @@ import './App.css';
 import Banner from './Banner.js';
 import ServicesDiv from './ServicesDiv.js';
 import Footer from './Footer.js';
-import Login from './Login.js';
-import Stats from './Stats.js';
-import SearchStations from './SearchStations.js';
-import ChargeVehicle from './ChargeVehicle.js'
-import FinishChargeVehicle from './FinishChargeVehicle.js'
-import StationsManage from './StationsManage.js'
+import Login from '../login/Login.js';
+import Stats from '../stats/Stats.js';
+import SearchStations from '../search_stations/SearchStations.js';
+import ChargeVehicle from '../charge_vehicle/ChargeVehicle.js'
+import FinishChargeVehicle from '../charge_vehicle/FinishChargeVehicle.js'
+import StationsManage from '../manage_stations/StationsManage.js'
 
 // an enumeration of all possible pages
 export const pages = {
@@ -24,9 +24,9 @@ export const pages = {
 // an enumeration of all possible user roles
 export const user_roles = {
   guest: "guest",
-  admin: "ROLE_ADMIN",
-  operator: "ROLE_OPERATOR",
-  user: "ROLE_USER"
+  admin: "admin",
+  operator: "operator",
+  user: "user"
 };
 
 // the most general Component that manages the different pages

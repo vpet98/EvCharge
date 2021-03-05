@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.Date;
 import java.util.HashMap;
@@ -780,7 +781,7 @@ public class GeneralController {
     // check if station ID already exists
     if (stationRepository.findById(id).isPresent())
       return buildResponse(new MessageResponse("Station with same ID already exists. If you want to update it, remove it first.",
-                                               "status"), "json");
+                                               "status"), format);
     // create new station
     Station station = new Station();
     station.setId(id);
@@ -825,10 +826,10 @@ public class GeneralController {
       stationRepository.save(station);
     }
     catch (Exception e) {
-      return buildResponse(new MessageResponse("Failed to add station", "status"), "json");
+      return buildResponse(new MessageResponse("Failed to add station", "status"), format);
     }
 
-    return buildResponse(new MessageResponse("Station added successfully!", "status"), "json");
+    return buildResponse(new MessageResponse("Station added successfully!", "status"), format);
   }
 
   // delete station
@@ -848,15 +849,34 @@ public class GeneralController {
       rids.add(r.getId());
     if (!rids.contains(3))
       if (!auth.getName().equals(stationGet.getOperator()))
-        return buildResponse(new MessageResponse("You cannot delete station of other operator", "status"), "json");
+        return buildResponse(new MessageResponse("You cannot delete station of other operator", "status"), format);
     // delete station
     try {
       stationRepository.delete(station);
     }
     catch (Exception e) {
-      return buildResponse(new MessageResponse("Failed to delete station", "status"), "json");
+      return buildResponse(new MessageResponse("Failed to delete station", "status"), format);
     }
-    return buildResponse(new MessageResponse("Station deleted successfully!", "status"), "json");
+    return buildResponse(new MessageResponse("Station deleted successfully!", "status"), format);
+  }
+
+
+  // vehicles per user (found through charging events)
+  @GetMapping("/evcharge/api/evPerUser/{username}")
+  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
+  public ResponseEntity<String> userVehicles(
+  @PathVariable(value = "username") String username,
+  @RequestParam(value = "format", defaultValue = "json") String format) throws BadRequestException, NoDataException {
+
+    User user = userRepository.findById(username).orElseThrow(() -> new BadRequestException("No such user"));
+    List<ChargeEvent> userEvents = chargeEventsRepository.findByUser(username);
+    if (userEvents.isEmpty())
+      throw new NoDataException("This user has no vehicles");
+    List<String> vehicles = new ArrayList<String>();
+    for (ChargeEvent ce : userEvents)
+      if (!vehicles.contains(ce.getVehicleId()))
+        vehicles.add(ce.getVehicleId());
+    return buildResponse(new UserVehiclesResponse(vehicles), format);
   }
 
 }
