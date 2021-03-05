@@ -1,6 +1,6 @@
 import React from 'react';
 import './FinishChargeVehicle.css';
-import {pages, user_roles} from '../app_essentials/App.js';
+import {user_roles} from '../app_essentials/App.js';
 import {checkout} from '../api_comm/api.js';
 import ActiveSessions from './ActiveSessions.js';
 import Payment from './Payment.js';

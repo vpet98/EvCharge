@@ -36,7 +36,7 @@ class StationsManage extends React.Component{
         setTimeout(() => {
           console.log(json);
           if (!json.data.Response){
-            this.setState({ stations: json.data.StationIDsList });
+            this.setState({ stations: json.data.StationsList });
           }
           else
             this.setState({ error: json.response.data.message });
@@ -61,7 +61,7 @@ class StationsManage extends React.Component{
           </div>
         )}
         {!isOperator &&(
-          <h4>You have no stations to manage. You must be an operator.</h4>
+          <h4>You have no stations to manage. You must be an operator. You are {this.props.user.role}.</h4>
         )}
       </div>
     );
