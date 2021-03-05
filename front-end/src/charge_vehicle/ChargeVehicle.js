@@ -1,7 +1,7 @@
 import React from 'react';
 import './ChargeVehicle.css';
-import {pages, user_roles} from './App.js';
-import {getSessionCost, startSession} from './api.js';
+import {pages, user_roles} from '../app_essentials/App.js';
+import {getSessionCost, startSession} from '../api_comm/api.js';
 import Charge from './Charge.js';
 
 const charging_pages = {
