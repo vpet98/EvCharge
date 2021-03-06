@@ -16,7 +16,6 @@ export const pages = {
   login: "login",
   stats: "stats",
   searchStations: "searchStations",
-  //K charge+inspect
   begin_charge: "begin_charge",
   finish_charge: "finish_charge",
   stations: "stations"
@@ -27,7 +26,7 @@ export const user_roles = {
   guest: "guest",
   admin: "admin",
   operator: "operator",
-  user: "ROLE_USER"
+  user: "user"
 };
 
 // the most general Component that manages the different pages

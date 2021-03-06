@@ -112,3 +112,80 @@ export const getSessionsPerPoint = obj => {
   };
   return axios.get(url, config);
 }
+
+// call to find the electric vehicles of a user
+export const getEvPerUser = user => {
+  const url = 'evPerUser/' + user.username;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + user.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+// call to find charging sessions per ev id
+// obj holds ev id, date from, date to, operator token
+export const getSessionsPerEv = obj => {
+  const url = 'SessionsPerEV/' + obj.EvId + '/' + yyyymmdd(obj.fDate) + '/' + yyyymmdd(obj.tDate);
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+export const getSessions = obj => {
+  const url = '/ActiveSession';
+  const config = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj
+    }
+  };
+  return axios.get(url, config);
+}
+
+export const checkout = obj => {
+  const url = '/CheckOut/'+obj.sessionId+'?end='+obj.time;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.post(url, null, config);
+}
+
+export const showStation = obj => {
+  const url = 'Operator/StationShow/'+obj.operator;
+  const config = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.get(url, config);
+}
+
+export const addStation = obj => {
+  const url = 'Operator/StationAdd';
+  const params = obj.info;
+  const config = {
+    params: params,
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.post(url, null, config);
+}
+
+export const removeStation = obj => {
+  const url = 'Operator/StationRemove/'+obj.station;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.post(url, null, config);
+}

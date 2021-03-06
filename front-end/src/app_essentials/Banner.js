@@ -7,6 +7,7 @@ import { postLogout } from '../api_comm/api.js';
 class Banner extends React.Component{
   constructor(props){
     super(props);
+    this.handleHome = this.handleHome.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
   }
@@ -41,6 +42,12 @@ class Banner extends React.Component{
     }
   }
 
+  handleHome(e){
+    this.props.callback({
+      page: pages.main
+    });
+  }
+
   render(){
     let userName = this.props.user ? this.props.user.username : "<anonymous>";
     return(
@@ -70,6 +77,12 @@ class Banner extends React.Component{
             Login
           </button>
         )}
+        <button
+          type="button"
+          name="home"
+          onClick={this.handleHome}
+          > Home
+        </button>
       </div>
     );
   }

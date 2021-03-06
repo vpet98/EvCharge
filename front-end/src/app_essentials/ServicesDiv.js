@@ -95,7 +95,7 @@ class ServicesDiv extends React.Component {
             name="stations"
             onClick={this.handleStationsManage}
             >
-            inspect
+            My Stations
           </button>
         </div>
       </div>
