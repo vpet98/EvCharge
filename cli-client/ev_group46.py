@@ -82,6 +82,8 @@ def resetsessions(format):
 		res = requests.post(url, verify = False)
 		res = res.json()
 		if (res['status'] == 'OK'):
+			if os.path.exists(path_of_token):
+				os.remove(path_of_token)
 			click.echo("all the sessions in the database have been reset")
 		else :
 			click.echo("reset is failed")
@@ -184,6 +186,8 @@ def Admin(usermod, username, passw, users, sessionsupd, source, healthcheck, res
 			res = requests.post(url, headers={'X-OBSERVATORY-AUTH': tok['token']}, verify = False)
 			res = res.json()
 			if (res['status'] == 'OK'):
+				if os.path.exists(path_of_token):
+					os.remove(path_of_token)
 				click.echo("all the sessions in the database have been reset")
 			elif res.status_code == 401 :
 				click.echo("you are not an admin")
@@ -299,7 +303,10 @@ def SessionsPerPoint(point, datefrom, dateto, format, apikey):
 	if format not in ['json', 'csv']:
         	click.echo("not accepted format")
         	return
-	url = 'https://localhost:8765/evcharge/api/SessionsPerPoint/' + point + '/' + datefrom + '/' + dateto
+	if (format == 'csv') :
+		url = 'https://localhost:8765/evcharge/api/SessionsPerPoint/' + point + '/' + datefrom + '/' + dateto + '?format=csv'
+	else : 
+		url = 'https://localhost:8765/evcharge/api/SessionsPerPoint/' + point + '/' + datefrom + '/' + dateto
 	if (os.path.exists(path_of_token)):
 		token_file = open(path_of_token, 'r')
 		tok = json.load(token_file)
@@ -333,7 +340,10 @@ def SessionsPerStation(station, datefrom, dateto, format, apikey):
 	if format not in ['json', 'csv']:
         	click.echo("not accepted format")
         	return
-	url = 'https://localhost:8765/evcharge/api/SessionsPerStation/' + station + '/' + datefrom + '/' + dateto
+	if (format == 'csv') :
+		url = 'https://localhost:8765/evcharge/api/SessionsPerStation/' + station + '/' + datefrom + '/' + dateto + '?format=csv'
+	else : 
+		url = 'https://localhost:8765/evcharge/api/SessionsPerStation/' + station + '/' + datefrom + '/' + dateto
 	if (os.path.exists(path_of_token)):
 		token_file = open(path_of_token, 'r')
 		tok = json.load(token_file)
@@ -367,7 +377,10 @@ def SessionsPerEV(ev, datefrom, dateto, format, apikey):
         	click.echo("not accepted format")
         	return
 	#print(datefrom)
-	url = 'https://localhost:8765/evcharge/api/SessionsPerEV/' + ev + '/' + datefrom + '/' + dateto
+	if (format == 'csv') :
+		url = 'https://localhost:8765/evcharge/api/SessionsPerEV/' + ev + '/' + datefrom + '/' + dateto + '?format=csv'
+	else : 
+		url = 'https://localhost:8765/evcharge/api/SessionsPerEV/' + ev + '/' + datefrom + '/' + dateto
 	#print(url)
 	if (os.path.exists(path_of_token)):
 		token_file = open(path_of_token, 'r')
@@ -401,7 +414,10 @@ def SessionsPerProvider(provider, datefrom, dateto, format, apikey):
 	if format not in ['json', 'csv']:
         	click.echo("not accepted format")
         	return
-	url = 'https://localhost:8765/evcharge/api/SessionsPerProvider/' + provider + '/' + datefrom + '/' + dateto
+	if (format == 'csv') :
+		url = 'https://localhost:8765/evcharge/api/SessionsPerProvider/' + provider + '/' + datefrom + '/' + dateto + '?format=csv'
+	else : 
+		url = 'https://localhost:8765/evcharge/api/SessionsPerProvider/' + provider + '/' + datefrom + '/' + dateto
 	if (os.path.exists(path_of_token)):
 		token_file = open(path_of_token, 'r')
 		tok = json.load(token_file)
