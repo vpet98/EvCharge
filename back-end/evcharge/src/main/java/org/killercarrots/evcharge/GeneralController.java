@@ -459,7 +459,7 @@ public class GeneralController {
     // In short, this is not a sufficient solution for a real system
     activeSession.setId(arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
     activeSession.setStationId(arrOfStr[0]);
-    activeSession.setPointId(arrOfStr[1]);
+    activeSession.setPointId(station_point);
     activeSession.setVehicleId(vehicleId);
     activeSession.setOperator(station.getOperator());
     activeSession.setStartTime(dtf.format(now));
@@ -535,7 +535,7 @@ public class GeneralController {
     LocalDateTime now = LocalDateTime.now();
     activeSession.setId(arrOfStr[0]+"_"+arrOfStr[1]+"_"+dtf.format(now));
     activeSession.setStationId(arrOfStr[0]);
-    activeSession.setPointId(arrOfStr[1]);
+    activeSession.setPointId(station_point);
     activeSession.setVehicleId(vehicleId);
     activeSession.setOperator(station.getOperator());
     activeSession.setStartTime(dtf.format(now));
@@ -589,7 +589,7 @@ public class GeneralController {
       Point point = new Point();
       Set<Point> points = station.getPoints();
       for (Point p : points)
-        if (Integer.toString(p.getLocalId()).equals(s.getPointId()))
+        if (Integer.toString(p.getLocalId()).equals(s.getPointId().split("_")[1]))
           point = p;
       // calculate current chargine time
       LocalDateTime now = LocalDateTime.now();
@@ -654,7 +654,7 @@ public class GeneralController {
     Point point = new Point();
     Set<Point> points = station.getPoints();
     for (Point p : points)
-      if (Integer.toString(p.getLocalId()).equals(session.getPointId()))
+      if (Integer.toString(p.getLocalId()).equals(session.getPointId().split("_")[1]))
         point = p;
     double kWhDelivered = (diff / 3600.0) * point.getPower();
     if (kWhDelivered > vehicleRepository.findById(session.getVehicleId()).get().getBatterySize())
