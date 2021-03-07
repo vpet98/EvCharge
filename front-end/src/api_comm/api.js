@@ -189,3 +189,13 @@ export const removeStation = obj => {
   };
   return axios.post(url, null, config);
 }
+
+export const creditCardPayment = obj => {
+  const url = 'CreditCardPayment/'+obj.sessionId;
+  const config = {
+    headers: {
+      'X-OBSERVATORY-AUTH': 'Bearer ' + obj.token
+    }
+  };
+  return axios.post(url, null, config);
+}

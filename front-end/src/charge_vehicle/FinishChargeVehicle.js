@@ -94,8 +94,10 @@ class FinishChargeVehicle extends React.Component{
         {this.state.sessionId !== "" &&(
           <div className="ChosenSession">
             <p>Chosen session: {this.state.sessionId}</p>
+            <p>Cost: {this.state.cost}</p>
             <Payment
               user={this.props.user}
+              state={this.state}
               handleCheckout={this.handleCheckout}/>
           </div>
         )}

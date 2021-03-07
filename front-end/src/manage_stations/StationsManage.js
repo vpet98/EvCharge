@@ -27,24 +27,29 @@ class StationsManage extends React.Component{
   }
 
   getStations(){
-    let obj = {
-      operator: this.props.user.username,
-      token: this.props.user.token
-    }
-    showStation(obj)
-      .then(json => {
-        setTimeout(() => {
-          console.log(json);
-          if (!json.data.Response){
-            this.setState({ stations: json.data.StationsList });
-          }
-          else
-            this.setState({ error: json.response.data.message });
-        }, 0)
-      })
-      .catch(err =>{
-        this.setState({ error: err.response.data.message });
-      });
+    if(this.props.user !== null){
+      let obj = {
+        operator: this.props.user.username,
+        token: this.props.user.token
+      }
+      showStation(obj)
+        .then(json => {
+          setTimeout(() => {
+            console.log(json);
+            if (!json.data.Response){
+              this.setState({ stations: json.data.StationsList });
+            }
+            else
+              this.setState({ error: json.response.data.message });
+          }, 0)
+        })
+        .catch(err =>{
+          this.setState({ error: err.response.data.message });
+        });
+      }
+      else{
+        this.setState({ error: "error" });
+      }
   }
 
 
@@ -61,7 +66,7 @@ class StationsManage extends React.Component{
           </div>
         )}
         {!isOperator &&(
-          <h4>You have no stations to manage. You must be an operator. You are {this.props.user.role}.</h4>
+          <h4>You have no stations to manage. You must be an operator.</h4>
         )}
       </div>
     );
