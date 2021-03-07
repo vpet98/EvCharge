@@ -1,11 +1,19 @@
 import React from 'react';
 import {user_roles} from '../app_essentials/App.js';
+import {creditCardPayment} from '../api_comm/api.js';
 import './Payment.css';
-//import {loadStripe} from '@stripe/stripe-js';
-//import {Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
 
-//const stripePromise = window.Stripe('pk_live_51IRF2wCiDDET7BaUJFo3TLB61qWagmUezVnYNHVSXDjcFLvKrENsCHvmWmNgGdfl5Glb0ZWHo3VNLxYtrVIVbqhn00DAKpAp1N');
-//const stripe = window.Stripe("pk_test_XXXXX");
+const stripePromise = loadStripe('pk_test_51IRF2wCiDDET7BaUBVnorIxVLt8UCxx7ypI7c3RIW70GKYHeo9qFX2dL18L4UDWKwDtdFHdVrR8bOz5aOcXqMMvL00sAQS7Ui0');
+
 class Payment extends React.Component{
   constructor(props){
     super(props);
@@ -22,7 +30,9 @@ class Payment extends React.Component{
 
   render(){
     return (
-      <div className="Payment">
+      <div>
+      {this.props.state.cost !== '0' &&(
+        <div className="Payment">
         <button
           type="button"
           name="cash"
@@ -43,9 +53,22 @@ class Payment extends React.Component{
             handleCheckout={this.props.handleCheckout}/>
         )}
         {!this.state.cash &&(
-          <CreditCard />
+          <CreditCard
+            user={this.props.user}
+            state={this.props.state}
+            handleCheckout={this.props.handleCheckout}/>
         )}
       </div>
+    )}
+    {this.props.state.cost === '0' &&(
+      <button
+        type="button"
+        name="Checkout"
+        onClick={this.props.handleCheckout}
+        > Finish Charging
+      </button>
+    )}
+    </div>
     )}
 }
 
@@ -78,22 +101,40 @@ class CreditCard extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      cash: true
+      cash: true,
+      error: null
     };
     this.handlePayment = this.handlePayment.bind(this);
   };
 
   handlePayment(e){
-    /*const stripe = stripePromise;
-    const res = stripe.redirectToCheckout({
-      lineItems: [{
-        price: 'price_1IRLiECiDDET7BaUxQ23fQ2o', // Replace with the ID of your price
-        quantity: 1,
-      }],
-      mode: 'payment',
-      successUrl: 'https://localhost:3000',
-      cancelUrl: 'https://localhost:3000',
-    });*/
+    const stripe = window.Stripe('pk_test_51IRF2wCiDDET7BaUBVnorIxVLt8UCxx7ypI7c3RIW70GKYHeo9qFX2dL18L4UDWKwDtdFHdVrR8bOz5aOcXqMMvL00sAQS7Ui0');
+    let info = {
+      sessionId: this.props.state.sessionId,
+      token: this.props.user.token
+    }
+    creditCardPayment(info)
+      .then(json => {
+        setTimeout(() => {
+          console.log(json);
+          if (!json.data.Response){
+            const res = stripe.redirectToCheckout({
+              sessionId : json.data.session
+            });
+            if(res.error){
+              this.setState({error: res.error.message});
+            }
+            else{
+              this.props.handleCheckout();
+            }
+          }
+          else
+            this.setState({ error: json.data.Response });
+        }, 0)
+      })
+      .catch(err =>{
+        this.setState({ error: err.response.data.message });
+      });
 
 }
 
@@ -104,9 +145,13 @@ class CreditCard extends React.Component{
         <button
           type="button"
           name="pay"
+          role="link"
           onClick={this.handlePayment}
         > Pay
         </button>
+        {this.state.error &&(
+          <p>{this.state.error}</p>
+        )}
       </div>
     );
   }

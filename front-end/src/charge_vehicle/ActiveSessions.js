@@ -9,10 +9,18 @@ class ActiveSessions extends React.Component{
       active_sessions : []
     };
     this.getsessions = this.getsessions.bind(this);
+    this.chooseSession = this.chooseSession.bind(this);
   }
 
   componentDidMount(){
     this.getsessions();
+  }
+
+  chooseSession(e){
+    const session = {target: {name: "sessionId", value: e.target.name}};
+    const cost = {target: {name: "cost", value: e.target.value}};
+    this.props.handleInput(session);
+    this.props.handleInput(cost);
   }
 
   getsessions(){
@@ -39,12 +47,18 @@ class ActiveSessions extends React.Component{
           <button
             key={i}
             type="button"
-            name="sessionId"
-            value={item.SessionID}
-            onClick={this.props.handleInput}
+            name={item.SessionID}
+            value={item.CurrentCost}
+            onClick={this.chooseSession}
           > SessionID: {item.SessionID}, Cost: {item.CurrentCost}
           </button>
         )}
+        <button
+          type="button"
+          name="Refresh"
+          onClick={this.getsessions}
+        > Refresh
+        </button>
       </div>
     );
   }
