@@ -58,7 +58,7 @@ class ServicesDiv extends React.Component {
             name="show_statistics"
             onClick={this.handleStats}
           >
-            stats
+            Stats
           </button>
         </div>
         <div className="find_stations_div">
@@ -68,7 +68,7 @@ class ServicesDiv extends React.Component {
             name="find_stations"
             onClick={this.handleSearchStations}
           >
-            search
+            Search
           </button>
         </div>
         <div className="charge_div">

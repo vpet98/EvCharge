@@ -53,6 +53,7 @@ class Banner extends React.Component{
     return(
       <div className="banner">
         <h4>EvCharge</h4>
+        <img src="../logo192.png" alt="Logo"/>
         {this.props.user !== null &&(
           <div className="dropdown">
             <button

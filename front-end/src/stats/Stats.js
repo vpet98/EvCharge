@@ -25,13 +25,6 @@ class Stats extends React.Component{
     let showStats = this.props.user !== null && this.props.user.hasOwnProperty('role');
     return(
       <>
-        <button
-          type="button"
-          name="home"
-          onClick={this.handleHome}
-        >
-          Home
-        </button>
         {!showStats &&(
           <GuestStats />
         )}

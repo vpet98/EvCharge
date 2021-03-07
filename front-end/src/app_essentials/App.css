@@ -1,5 +1,10 @@
 /* TODO -- style app */
 
+h1 {
+  font-family: sans-serif;
+  color: gold;
+}
+
 .App {
   text-align: center;
 }

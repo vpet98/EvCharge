@@ -55,9 +55,9 @@ class SearchStations extends React.Component{
   handleSubmit(e){
     this.setState({ msg: "", error: "" });
     if(this.state.latitude < -90 || this.state.latitude > 90){
-      this.setState({ error: "Invalid coordinates: Latitude needs to be between this bounds: [-90, 90]" });
+      this.setState({ error: "Invalid coordinates: Latitude needs to be between these bounds: [-90, 90]" });
     }else if(this.state.longitude < -180 || this.state.longitude > 180){
-      this.setState({ error: "Invalid coordinates: Longitude needs to be between this bounds: [-180, 180]" });
+      this.setState({ error: "Invalid coordinates: Longitude needs to be between these bounds: [-180, 180]" });
     }else if(this.state.radius < 0){
       this.setState({ error: "Radius needs to be positive" });
     }else{
@@ -91,13 +91,6 @@ class SearchStations extends React.Component{
     return(
       <>
         <p>A searchStations page</p>
-        <button
-          type="button"
-          name="home"
-          onClick={this.handleHome}
-        >
-          Home
-        </button>
         <div>
           <p>Latitude</p>
           <input

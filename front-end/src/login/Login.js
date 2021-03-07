@@ -54,7 +54,10 @@ class Login extends React.Component{
           }, 0)
         })
         .catch(err => {
-          this.setState({ error: err.message });
+          if(err.response.data.message)
+            this.setState({ error: err.response.data.message });
+          else
+            this.setState({ error: err.message });
         });
     }
   }
