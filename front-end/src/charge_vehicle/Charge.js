@@ -10,7 +10,7 @@ class Charge extends React.Component{
           <GetInfo state={this.props.state} handleInput={this.props.handleInput}
                       handleEnterInfo={this.props.handleEnterInfo}/>
           {this.props.state.error &&(
-            <p>{this.props.state.error}</p>
+            <div className="error"><p>{this.props.state.error}</p></div>
           )}
           {!this.props.state.error && this.props.state.protocol_cost &&(
             <div className="charging_avaiable">

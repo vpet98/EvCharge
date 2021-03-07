@@ -645,7 +645,7 @@ public class GeneralController {
     Point point = new Point();
     Set<Point> points = station.getPoints();
     for (Point p : points)
-      if (Integer.toString(p.getLocalId()).equals(session.getPointId()))
+      if (Integer.toString(p.getLocalId()).equals(session.getPointId().split("_")[1]))
         point = p;
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     // calculate current chargine time

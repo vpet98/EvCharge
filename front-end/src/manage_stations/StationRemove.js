@@ -87,8 +87,8 @@ class StationRemove extends React.Component{
             )}
           </div>
         )}
-        {this.state.error &&(
-          <p>{this.state.error}</p>
+        {this.state.error && (
+          <div className="error"><p>{this.state.error}</p></div>
         )}
       </div>
     );

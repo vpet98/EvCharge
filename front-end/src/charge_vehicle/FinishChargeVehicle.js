@@ -102,7 +102,7 @@ class FinishChargeVehicle extends React.Component{
           </div>
         )}
         {this.state.error && (
-          <p>{this.state.error}</p>
+          <div className="error"><p>{this.state.error}</p></div>
         )}
       </div>
       )}

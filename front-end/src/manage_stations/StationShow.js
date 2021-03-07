@@ -10,8 +10,8 @@ class StationShow extends React.Component{
         {!this.props.state.error && this.props.state.stations.map((item,i) =>
           <li key={i}>{item.StationId}</li>
         )}
-        {this.props.state.error &&(
-          <p>{this.props.state.error}</p>
+        {this.props.state.error !== null && (
+          <div className="error"><p>{this.props.state.error}</p></div>
         )}
       </div>
     );

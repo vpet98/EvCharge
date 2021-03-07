@@ -71,7 +71,7 @@ class Banner extends React.Component{
         {this.props.user === null &&(
           <button
             type="button"
-            className="login_btn"
+            className="btn waves-effect waves-light login_btn"
             name="login"
             onClick={this.handleLogin}
           >
@@ -80,6 +80,7 @@ class Banner extends React.Component{
         )}
         <button
           type="button"
+          className="btn waves-effect waves-light home_btn"
           name="home"
           onClick={this.handleHome}
           > Home

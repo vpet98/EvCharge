@@ -109,7 +109,9 @@ class Login extends React.Component{
             >
               Continue as guest
             </button>
-            <p>{ this.state.error }</p>
+            {this.state.error !== null && (
+              <div className="error"><p>{this.state.error}</p></div>
+            )}
           </div>
       </div>
     );

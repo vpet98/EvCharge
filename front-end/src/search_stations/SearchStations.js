@@ -127,7 +127,9 @@ class SearchStations extends React.Component{
             Search
           </button>
           <p>{this.state.msg}</p>
-          <p>{this.state.error}</p>
+          {this.state.error && (
+            <div className="error"><p>{this.state.error}</p></div>
+          )}
         </div>
         <Map
           center={this.state.map_center}

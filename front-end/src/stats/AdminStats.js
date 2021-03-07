@@ -46,7 +46,9 @@ class AdminStats extends React.Component {
           Check System
         </button>
         <p>{this.state.healthcheck_result}</p>
-        <p>{this.state.error}</p>
+        {this.state.error !== null && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
       </>
     );
   }

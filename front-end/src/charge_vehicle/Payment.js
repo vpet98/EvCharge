@@ -149,8 +149,8 @@ class CreditCard extends React.Component{
           onClick={this.handlePayment}
         > Pay
         </button>
-        {this.state.error &&(
-          <p>{this.state.error}</p>
+        {this.state.error !== null && (
+          <div className="error"><p>{this.state.error}</p></div>
         )}
       </div>
     );

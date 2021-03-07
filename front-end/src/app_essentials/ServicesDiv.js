@@ -55,6 +55,7 @@ class ServicesDiv extends React.Component {
           <p>Statistical analysis</p>
           <button
             type="button"
+            className="btn waves-effect waves-light stats_btn"
             name="show_statistics"
             onClick={this.handleStats}
           >
@@ -65,6 +66,7 @@ class ServicesDiv extends React.Component {
           <p>Find charging stations nearby</p>
           <button
             type="button"
+            className="btn waves-effect waves-light search_btn"
             name="find_stations"
             onClick={this.handleSearchStations}
           >
@@ -75,6 +77,7 @@ class ServicesDiv extends React.Component {
           <p>Charge your electric vehicle</p>
           <button
             type="button"
+            className="btn waves-effect waves-light charge_btn"
             name="charge"
             onClick={this.handleBeginCharge}
             >
@@ -82,6 +85,7 @@ class ServicesDiv extends React.Component {
           </button>
           <button
             type="button"
+            className="btn waves-effect waves-light finish_btn"
             name="finish_charge"
             onClick={this.handleFinishCharge}
             >
@@ -92,6 +96,7 @@ class ServicesDiv extends React.Component {
           <p>Manage your charging stations</p>
           <button
             type="button"
+            className="btn waves-effect waves-light stations_btn"
             name="stations"
             onClick={this.handleStationsManage}
             >

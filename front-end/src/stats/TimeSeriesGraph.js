@@ -97,7 +97,9 @@ class TimeSeriesGraph extends React.Component{
           Graph Stats
         </button>
         <p>{this.props.msg}</p>
-        <p>{this.props.error}</p>
+        {this.state.error !== null && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
         {this.props.graph_options && (
           <>
             <p>Graph integral: {this.props.graph_options.graph_aggregate}</p>

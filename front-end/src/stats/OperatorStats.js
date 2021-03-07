@@ -246,7 +246,9 @@ class OperatorStats extends React.Component {
         {this.state.show_stations && (
           <>
             <p>{ this.state.msg }</p>
-            <p>{ this.state.error }</p>
+            {this.state.error !== null && (
+              <div className="error"><p>{this.state.error}</p></div>
+            )}
             {this.showStations()}
           </>
         )}
