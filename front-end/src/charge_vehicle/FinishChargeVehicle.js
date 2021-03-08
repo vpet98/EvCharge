@@ -78,8 +78,8 @@ class FinishChargeVehicle extends React.Component{
   }
 
   render(){
-    let availableSessions = this.props.user !== null && this.props.user.hasOwnProperty('role')
-                            && this.props.user.role !== user_roles.guest;
+    let availableSessions = this.props.user !== null && this.props.user.hasOwnProperty('roles')
+                            && this.props.user.roles !== [user_roles.guest];
     return(
       <>
       {!availableSessions &&(

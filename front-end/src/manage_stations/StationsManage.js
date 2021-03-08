@@ -54,8 +54,8 @@ class StationsManage extends React.Component{
 
 
   render(){
-    let isOperator = this.props.user !== null && this.props.user.hasOwnProperty('role')
-                            && this.props.user.role === user_roles.operator;
+    let isOperator = this.props.user !== null && this.props.user.hasOwnProperty('roles')
+                            && this.props.user.roles.includes(user_roles.operator);
     return(
       <div className="StaionsManage">
         {isOperator &&(

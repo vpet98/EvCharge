@@ -22,19 +22,19 @@ class Stats extends React.Component{
   }
 
   render(){
-    let showStats = this.props.user !== null && this.props.user.hasOwnProperty('role');
+    let showStats = this.props.user !== null && this.props.user.hasOwnProperty('roles');
     return(
       <>
         {!showStats &&(
           <GuestStats />
         )}
-        {showStats && this.props.user.role === user_roles.admin &&(
+        {showStats && this.props.user.roles.includes(user_roles.admin) &&(
           <AdminStats />
         )}
-        {showStats && this.props.user.role === user_roles.operator &&(
+        {showStats && this.props.user.roles.includes(user_roles.operator) &&(
           <OperatorStats user={this.props.user}/>
         )}
-        {showStats && this.props.user.role === user_roles.user &&(
+        {showStats && this.props.user.roles.includes(user_roles.user) &&(
           <UserStats user={this.props.user}/>
         )}
       </>

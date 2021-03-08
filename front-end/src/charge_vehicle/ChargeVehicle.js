@@ -97,8 +97,8 @@ class ChargeVehicle extends React.Component{
 
 
   render(){
-    let enableCharging = this.props.user !== null && this.props.user.hasOwnProperty('role')
-                            && this.props.user.role !== user_roles.guest;
+    let enableCharging = this.props.user !== null && this.props.user.hasOwnProperty('roles')
+                            && this.props.user.roles !== [user_roles.guest];
     return(
       <div className="ChargingStates">
         {this.state.page === charging_pages.main &&(

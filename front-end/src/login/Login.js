@@ -45,7 +45,7 @@ class Login extends React.Component{
               username: this.state.username,
               password: this.state.password, // maybe this is not a good IDEA
               token: json.data.token,
-              role: json.data.roles[0]
+              roles: json.data.roles
             };
             this.props.callback({
               page: pages.main,

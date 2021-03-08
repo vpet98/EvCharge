@@ -1,6 +1,6 @@
 import React from 'react';
 import './ServicesDiv.css';
-import { pages } from './App.js';
+import { pages, user_roles } from './App.js';
 
 // a div that holds links to other important pages
 class ServicesDiv extends React.Component {
@@ -73,36 +73,40 @@ class ServicesDiv extends React.Component {
             Search
           </button>
         </div>
-        <div className="charge_div">
-          <p>Charge your electric vehicle</p>
-          <button
-            type="button"
-            className="btn waves-effect waves-light charge_btn"
-            name="charge"
-            onClick={this.handleBeginCharge}
-            >
-            Begin Charging
-          </button>
-          <button
-            type="button"
-            className="btn waves-effect waves-light finish_btn"
-            name="finish_charge"
-            onClick={this.handleFinishCharge}
-            >
-            Finish Charging
-          </button>
-        </div>
-        <div className="stations_div">
-          <p>Manage your charging stations</p>
-          <button
-            type="button"
-            className="btn waves-effect waves-light stations_btn"
-            name="stations"
-            onClick={this.handleStationsManage}
-            >
-            My Stations
-          </button>
-        </div>
+        {this.props.user && this.props.user.roles !== [user_roles.guest] && (
+          <div className="charge_div">
+            <p>Charge your electric vehicle</p>
+            <button
+              type="button"
+              className="btn waves-effect waves-light charge_btn"
+              name="charge"
+              onClick={this.handleBeginCharge}
+              >
+              Begin Charging
+            </button>
+            <button
+              type="button"
+              className="btn waves-effect waves-light finish_btn"
+              name="finish_charge"
+              onClick={this.handleFinishCharge}
+              >
+              Finish Charging
+            </button>
+          </div>
+        )}
+        {this.props.user && this.props.user.roles.includes(user_roles.operator) && (
+          <div className="stations_div">
+            <p>Manage your charging stations</p>
+            <button
+              type="button"
+              className="btn waves-effect waves-light stations_btn"
+              name="stations"
+              onClick={this.handleStationsManage}
+              >
+              My Stations
+            </button>
+          </div>
+        )}
       </div>
     );
   }
