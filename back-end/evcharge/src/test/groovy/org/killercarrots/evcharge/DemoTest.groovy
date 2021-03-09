@@ -21,7 +21,7 @@ class TestGeneralController extends Specification {
     gc.userAccess() == "User Content."
   }
 
-  def "Test GetUserStatus"() {
+/*  def "Test GetUserStatus"() {
     given:
     def list = new ArrayList<String>()
     list.add("user")
@@ -31,16 +31,16 @@ class TestGeneralController extends Specification {
     expect:
     ac.registerUser("json", list, "bill", "password") != null
 
-/*    when:
+    when:
     List<String> list = new ArrayList<String>()
     list.add("operator")
 
     then:
-    ac.registerUser("json", list, "bill", "password") == "does it?"*/
-    //gc.GetUserStatus("json", "bill") == "User Content."
+    ac.registerUser("json", list, "bill", "password") == "does it?"
+    gc.GetUserStatus("json", "bill") == "User Content."
   }
 
-/*  def "Test GetUserStatus"() {
+  def "Test GetUserStatus"() {
     def get = new URL("https://localhost:8765/evcharge/api/admin/users/bill").openConnection();
     def getRC = get.getResponseCode();
 
