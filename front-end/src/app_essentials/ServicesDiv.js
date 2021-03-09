@@ -49,6 +49,7 @@ class ServicesDiv extends React.Component {
   }
 
   render(){
+    let user_with_roles = this.props.user && this.props.user.hasOwnProperty('roles');
     return(
       <div className="services_div">
         <div className="statistics_div">
@@ -73,7 +74,7 @@ class ServicesDiv extends React.Component {
             Search
           </button>
         </div>
-        {this.props.user && this.props.user.roles !== [user_roles.guest] && (
+        {user_with_roles && this.props.user.roles !== [user_roles.guest] && (
           <div className="charge_div">
             <p>Charge your electric vehicle</p>
             <button
@@ -94,7 +95,7 @@ class ServicesDiv extends React.Component {
             </button>
           </div>
         )}
-        {this.props.user && this.props.user.roles.includes(user_roles.operator) && (
+        {user_with_roles && this.props.user.roles.includes(user_roles.operator) && (
           <div className="stations_div">
             <p>Manage your charging stations</p>
             <button

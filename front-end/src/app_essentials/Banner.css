@@ -8,6 +8,14 @@ img {
   margin-right: 55vw;
 }
 
-/*button {
-  float: left;
-}*/
+.banner {
+  display: inline;
+}
+
+.login_btn {
+  float: right;
+}
+
+.user_menu {
+  float: right;
+}

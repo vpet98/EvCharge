@@ -1,12 +1,10 @@
-﻿/*
-CanvasJS React Charts - https://canvasjs.com/
-Copyright 2021 fenopix
+// CanvasJS React Charts - https://canvasjs.com/
+// Copyright 2021 fenopix
+//
+// --------------------- License Information --------------------
+// CanvasJS is a commercial product which requires purchase of license. Without a commercial license you can use it for evaluation purposes for upto 30 days. Please refer to the following link for further details.
+// https://canvasjs.com/license/
 
---------------------- License Information --------------------
-CanvasJS is a commercial product which requires purchase of license. Without a commercial license you can use it for evaluation purposes for upto 30 days. Please refer to the following link for further details.
-https://canvasjs.com/license/
-
-*/
 var React = require('react');
 var CanvasJS = require('./canvasjs.min');
 CanvasJS = CanvasJS.Chart ? CanvasJS : window.CanvasJS;
@@ -21,7 +19,7 @@ class CanvasJSChart extends React.Component {
 		this.chartContainerId = "canvasjs-react-chart-container-" + CanvasJSChart._cjsContainerId++;
 	}
 	componentDidMount() {
-		//Create Chart and Render		
+		//Create Chart and Render
 		this.chart = new CanvasJS.Chart(this.chartContainerId, this.options);
 		this.chart.render();
 
@@ -44,7 +42,7 @@ class CanvasJSChart extends React.Component {
 			this.props.onRef(undefined);
 	}
 	render() {
-		//return React.createElement('div', { id: this.chartContainerId, style: this.containerProps });		
+		//return React.createElement('div', { id: this.chartContainerId, style: this.containerProps });
 		return <div id={this.chartContainerId} style={this.containerProps} />
 	}
 }

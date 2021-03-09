@@ -34,7 +34,7 @@ class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      user: props.user,
+      user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : props.user,
       page: pages.main
     };
     this.changePage = this.changePage.bind(this);

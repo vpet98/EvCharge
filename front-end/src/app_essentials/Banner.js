@@ -2,6 +2,7 @@ import React from 'react';
 import './Banner.css';
 import { pages } from './App.js';
 import { postLogout } from '../api_comm/api.js';
+import M from 'materialize-css';
 
 // A banner component
 class Banner extends React.Component{
@@ -10,6 +11,11 @@ class Banner extends React.Component{
     this.handleHome = this.handleHome.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
+  }
+
+  componentDidMount() {
+        let elems = document.querySelectorAll('.dropdown-trigger');
+        M.Dropdown.init(elems, {inDuration: 300, outDuration: 225, coverTrigger: false});
   }
 
   // handle click "go to login page" button
@@ -38,6 +44,9 @@ class Banner extends React.Component{
           })
           .catch(err => {
             alert("Got a problem while trying to logout user " + this.props.user.username + ":\n" + err.message);
+          })
+          .finally(() => {
+            localStorage.removeItem('user');
           });
     }
   }
@@ -52,20 +61,23 @@ class Banner extends React.Component{
     let userName = this.props.user ? this.props.user.username : "<anonymous>";
     return(
       <div className="banner">
-        <h4>EvCharge</h4>
-        <img src="../logo192.png" alt="Logo"/>
+        <h4 onClick={this.handleHome} >EvCharge</h4>
+        <img src="../logo192.png" alt="Logo" onClick={this.handleHome}/>
         {this.props.user !== null &&(
-          <div className="dropdown">
-            <button
+          <div className="user_menu">
+            <a
               type="button"
-              className="user_btn"
+              className="btn waves-effect waves-light dropdown-trigger"
+              id="dropdowner"
+              href='#!'
+              data-target='dropdown1'
               name="user_btn"
             >
               {userName}
-            </button>
-            <p onClick={this.handleLogout}>
-              Logout
-            </p>
+            </a>
+            <ul id='dropdown1' className='dropdown-content'>
+              <li><a href="#!" onClick={this.handleLogout}>Logout</a></li>
+            </ul>
           </div>
         )}
         {this.props.user === null &&(

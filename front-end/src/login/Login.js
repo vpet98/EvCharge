@@ -47,6 +47,7 @@ class Login extends React.Component{
               token: json.data.token,
               roles: json.data.roles
             };
+            localStorage.setItem('user', JSON.stringify(finalUser));
             this.props.callback({
               page: pages.main,
               user: finalUser
