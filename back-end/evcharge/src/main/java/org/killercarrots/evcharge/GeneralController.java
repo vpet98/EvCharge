@@ -946,10 +946,11 @@ public class GeneralController {
     List<ChargeEvent> userEvents = chargeEventsRepository.findByUser(username);
     if (userEvents.isEmpty())
       throw new NoDataException("This user has no vehicles");
-    List<String> vehicles = new ArrayList<String>();
+    List<Vehicle> vehicles = new ArrayList<Vehicle>();
+    List<String> vehiclesIds = new ArrayList<String>();
     for (ChargeEvent ce : userEvents)
-      if (!vehicles.contains(ce.getVehicleId()))
-        vehicles.add(ce.getVehicleId());
+      if (!vehiclesIds.contains(ce.getVehicleId()))
+        vehicles.add(vehicleRepository.findById(ce.getVehicleId()).get());
     return buildResponse(new UserVehiclesResponse(vehicles), format);
   }
 
