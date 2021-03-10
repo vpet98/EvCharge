@@ -864,8 +864,10 @@ public class GeneralController {
     List<Vehicle> vehicles = new ArrayList<Vehicle>();
     List<String> vehiclesIds = new ArrayList<String>();
     for (ChargeEvent ce : userEvents)
-      if (!vehiclesIds.contains(ce.getVehicleId()))
+      if (!vehiclesIds.contains(ce.getVehicleId())) {
         vehicles.add(vehicleRepository.findById(ce.getVehicleId()).get());
+        vehiclesIds.add(ce.getVehicleId());
+      }
     return buildResponse(new UserVehiclesResponse(vehicles), format);
   }
 
