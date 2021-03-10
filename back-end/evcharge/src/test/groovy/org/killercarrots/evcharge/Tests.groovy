@@ -87,7 +87,28 @@ class Tests extends Specification {
     }
 
     def "Test pointInfo" () {
+      when:
+      def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                      .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                      .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                          new BasicNameValuePair("username", "testNonExistentUser"),
+                          new BasicNameValuePair("password", "testpass"))))))
+                      .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+      def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+      Vehicle vehicle = new Vehicle(
+          id         : "testNonExistentVehicleID"
+          brand      : "testNonExistentBrand"
+          model      : "testNonExistentModel"
+          variant    : "testNonExistentVariant"
+          consumption: 56.0
+          batterySize: 56.0
+          ac         : new
+          dc         :
+        )
 
+      then:
+      mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionCost/.../...").header("X-OBSERVATORY-AUTH", "Bearer "+token))
+      .andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Delete user registered above" () {

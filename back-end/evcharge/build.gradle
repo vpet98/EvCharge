@@ -36,7 +36,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
 	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 
-	// spock, manually added
+	// for back-end automated tests, manually added
 	// https://mvnrepository.com/artifact/org.spockframework/spock-spring
 	testImplementation group: 'org.spockframework', name: 'spock-spring', version: '2.0-M4-groovy-2.5'
 
