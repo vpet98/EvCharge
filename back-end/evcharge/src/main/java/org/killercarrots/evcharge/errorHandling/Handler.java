@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartException;
@@ -16,6 +17,12 @@ public class Handler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MultipartException.class)
     protected ResponseEntity<String> MultipartHandler(MultipartException e) {
+        ApiError err = new ApiError(400, "Bad request", e.getMessage());
+        return err.buildErrorResponse(HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<String> BadCRedentialsHandler(BadCredentialsException e) {
         ApiError err = new ApiError(400, "Bad request", e.getMessage());
         return err.buildErrorResponse(HttpStatus.BAD_REQUEST);
     }
