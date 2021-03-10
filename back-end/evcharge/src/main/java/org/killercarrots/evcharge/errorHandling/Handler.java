@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +36,12 @@ public class Handler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotAuthorizedException.class)
     protected ResponseEntity<String> NotAuthorized(NotAuthorizedException e) {
+        ApiError err = new ApiError(401, "Not authorized", e.getMessage());
+        return err.buildErrorResponse(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<String> AccessDenied(AccessDeniedException e) {
         ApiError err = new ApiError(401, "Not authorized", e.getMessage());
         return err.buildErrorResponse(HttpStatus.UNAUTHORIZED);
     }
