@@ -40,6 +40,14 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.spockframework/spock-spring
 	testImplementation group: 'org.spockframework', name: 'spock-spring', version: '2.0-M4-groovy-2.5'
 
+	// manually added
+	// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+
+	// manually added
+	// https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
+	implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.5.0'
+
 }
 
 test {

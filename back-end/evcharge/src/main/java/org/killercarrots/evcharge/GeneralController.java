@@ -841,7 +841,7 @@ public class GeneralController {
         return buildResponse(new MessageResponse("You cannot delete station of other operator", "status"), format);
     // delete station
     try {
-      stationRepository.delete(station);
+      stationRepository.delete(stationGet);
     }
     catch (Exception e) {
       return buildResponse(new MessageResponse("Failed to delete station", "status"), format);
