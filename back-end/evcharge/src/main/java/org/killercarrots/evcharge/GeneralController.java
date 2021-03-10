@@ -130,29 +130,10 @@ public class GeneralController {
     return false;
   }
 
-  // just some demo endpoints to check
-  // role based authorization
+  // just a demo endpoint for checking
   @GetMapping("/evcharge/test")
   public String allAccess() {
     return "Public Content.";
-  }
-
-  @GetMapping("/evcharge/user")
-  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public String userAccess() {
-    return "User Content.";
-  }
-
-  @GetMapping("/evcharge/operator")
-  @PreAuthorize("hasRole('OPERATOR')")
-  public String moderatorAccess() {
-    return "Moderator Board.";
-  }
-
-  @GetMapping("/evcharge/admin")
-  @PreAuthorize("hasRole('ADMIN')")
-  public String adminAccess() {
-    return "Admin Board.";
   }
 
   @GetMapping(value="/evcharge/api/admin/users/{username}")
@@ -611,7 +592,7 @@ public class GeneralController {
   // complete charging process
   @PostMapping("/evcharge/api/CheckOut/{sessionId}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public ResponseEntity<String> userActiveSessions(Authentication auth,
+  public ResponseEntity<String> completeCharging(Authentication auth,
   // below we need a string that the user is NEVER going to enter
   @RequestParam(value = "end", defaultValue = "electric vehicles suck, vescoukis-nickie not good professors (obvious lies)") String end,
   @RequestParam(value = "format", defaultValue = "json") String format,

@@ -19,6 +19,7 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
 import com.jayway.jsonpath.JsonPath
 import org.killercarrots.evcharge.repos.UserRepository
+import org.killercarrots.evcharge.repos.StationRepository
 import java.util.ArrayList
 
 @SpringBootTest
@@ -32,6 +33,9 @@ class FunctionalTests extends Specification {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private StationRepository stationRepository;
 
     def "Reset sessions" () {
         expect:
@@ -85,6 +89,7 @@ class FunctionalTests extends Specification {
         mvc.perform(MockMvcRequestBuilders.multipart("/evcharge/api/admin/system/sessionsupd").file(demo_file).header("X-OBSERVATORY-AUTH", "Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
     }
 
+    // user MUST NOT already exist in database
     def "Create new demo user" () {
         when:
         def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
@@ -99,6 +104,7 @@ class FunctionalTests extends Specification {
         mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/usermod/testUser/testPassword").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
     }
 
+    // user MUST NOT already exist in database
     def "Create new demo operator" () {
         when:
         def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
@@ -216,7 +222,7 @@ class FunctionalTests extends Specification {
         mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/StationsNearby/0/0/100000")).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
     }
 
-    def "Try to logout after a succeful login" () {
+    def "Try to logout after a successful login" () {
         when:
         def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -230,10 +236,171 @@ class FunctionalTests extends Specification {
         mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/logout").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
+    def "Test pointInfo NOT supported protocol" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        def epr = mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionCost/a9a177bf-9ce5-4b67-b3ef-51af248b48c2/5f6978b800355e4c01059523_20101").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        JsonPath.parse(epr.getResponse().getContentAsString()).read("Response")
+    }
+
+    def "Test pointInfo supported protocol" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        def epr = mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionCost/45b68c71-cd11-4bd7-a03f-fdaae259635d/5f6978b800355e4c0105958a_20294").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        JsonPath.parse(epr.getResponse().getContentAsString()).read("protocol")
+    }
+
+    def "Test startChargingCost" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        def epr = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/StartSessionCost/45b68c71-cd11-4bd7-a03f-fdaae259635d/5f6978b800355e4c0105958a_20294/56").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        JsonPath.parse(epr.getResponse().getContentAsString()).read("session")
+    }
+
+    def "Test startChargingAmount" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        def epr = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/StartSessionAmount/e8773876-6036-4a6c-926e-5490aae58971/5f6978b800355e4c010598e7_16161/56").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        JsonPath.parse(epr.getResponse().getContentAsString()).read("session")
+    }
+
+    def "Test userActiveSessions and completeCharging" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        def epr = mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/ActiveSession").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def id1 = JsonPath.parse(epr.getResponse().getContentAsString()).read("ActiveSessionsList[0].SessionID")
+        def id2 = JsonPath.parse(epr.getResponse().getContentAsString()).read("ActiveSessionsList[1].SessionID")
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/CheckOut/"+id1).header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/CheckOut/"+id2).header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+    }
+
+    def "Test showStations, expect No Data" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testOperator"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/Operator/StationShow/testOperator").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isPaymentRequired())
+    }
+
+    def "Test addStation" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testOperator"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/Operator/StationAdd?id=testStationNonExistent&cost=0.5&address=testAddress&country=Greece&lon=56.0&lat=56.0&points=404_7.0_ac_type2,101396_11.0_dc_chademo")
+        .header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
+    }
+
+    def "Test showStations" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testOperator"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/Operator/StationShow/testOperator").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+    }
+
+    def "Test removeStation" () {
+        given:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testOperator"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/Operator/StationRemove/testStationNonExistent").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+    }
+
+    def "Test userVehicles" () {
+        when:
+        def response = mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                            new BasicNameValuePair("username", "testUser"),
+                            new BasicNameValuePair("password", "testPassword"))))))
+                        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
+
+        then:
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/evPerUser/testUser").header("X-OBSERVATORY-AUTH","Bearer "+token))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+    }
+
     def "Try to reset changes from tests at the end" () {
         when:
         userRepository.deleteById("testUser")
         userRepository.deleteById("testOperator")
+        stationRepository.deleteById("testStationNonExistent")
 
         then:
         mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/resetsessions")).andExpect(MockMvcResultMatchers.status().isOk())
