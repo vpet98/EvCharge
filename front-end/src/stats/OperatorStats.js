@@ -202,8 +202,8 @@ class OperatorStats extends React.Component {
           <p>You have {this.state.number_of_stations} stations</p>
         )}
         <ul className="collapsible expandable">
-          {this.state.stations.map(station =>
-            <li key={station.StationId} className="collection-item">
+          {this.state.stations.map((station, index) =>
+            <li key={index} className="collection-item">
               <div className="collapsible-header">
                 <a href="#!">{station.Address}</a>
               </div>
@@ -216,9 +216,9 @@ class OperatorStats extends React.Component {
                 >
                   total station performance
                 </a>
-                {station.PointsList && station.PointsList.map(point =>
+                {station.PointsList && station.PointsList.map((point, index) =>
                   <a
-                    key={point.PointId}
+                    key={index}
                     name={JSON.stringify({StationId: station.StationId, PointId : point.PointId})}
                     className="collection-item"
                     href="#!"

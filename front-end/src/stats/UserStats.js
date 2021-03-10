@@ -59,7 +59,7 @@ class UserStats extends React.Component {
 
   // handle click ev charges button
   evGraphSwitch(e){
-    let target_ev = e.target.name;
+    let target_ev = this.state.evs.filter(ev => {return ev.VehicleId === e.target.name})[0];
     this.setState({
       selected_ev: target_ev,
       graph_options: null
@@ -102,7 +102,7 @@ class UserStats extends React.Component {
   getData({from_date, to_date, graph_kw}){
     this.setState({ graph_options: null, graph_error: "", graph_msg: "Fetching data..." });
     let req_obj = {
-      EvId: this.state.selected_ev,
+      EvId: this.state.selected_ev.VehicleId,
       fDate: from_date,
       tDate: to_date,
       token: this.props.user.token
@@ -138,16 +138,16 @@ class UserStats extends React.Component {
           <p>You have {this.state.number_of_evs} electric vehicles</p>
         )}
         <div className="collection">
-          {this.state.evs.map(ev =>
-            <div key={ev}>
+          {this.state.evs.map((ev, index) =>
+            <div key={index}>
               <a
                 type="button"
                 href="#!"
                 className="collection-item"
-                name={ev}
+                name={ev.VehicleId}
                 onClick={this.evGraphSwitch}
               >
-                {ev}
+                {ev.Brand + ' ' + ev.Model + ' ' + ev.Variant}
               </a>
             </div>
           )}
