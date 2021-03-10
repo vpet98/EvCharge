@@ -86,7 +86,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.multipart("/evcharge/api/admin/system/sessionsupd").file(demo_file).header("X-OBSERVATORY-AUTH", "Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.multipart("/evcharge/api/admin/system/sessionsupd").file(demo_file).header("X-OBSERVATORY-AUTH", "Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     // user MUST NOT already exist in database
@@ -101,7 +101,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/usermod/testUser/testPassword").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/usermod/testUser/testPassword").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     // user MUST NOT already exist in database
@@ -116,7 +116,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/usermod/testOperator/testPassword?roles=operator").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.post("/evcharge/api/admin/usermod/testOperator/testPassword?roles=operator").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search existing sessions by vehicle" () {
@@ -130,7 +130,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerEV/45b68c71-cd11-4bd7-a03f-fdaae259635d/20190101/20200101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerEV/45b68c71-cd11-4bd7-a03f-fdaae259635d/20190101/20200101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search not existing sessions by vehicle, expecting No Data" () {
@@ -144,7 +144,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerEV/45b68c71-cd11-4bd7-a03f-fdaae259635d/20100101/20110101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isPaymentRequired()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerEV/45b68c71-cd11-4bd7-a03f-fdaae259635d/20100101/20110101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isPaymentRequired())
     }
 
     def "Search sessions by provider name as a user, expecting unauthorized response" () {
@@ -158,7 +158,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isUnauthorized())
     }
 
     def "Search sessions by provider name as an operator, should succeed" () {
@@ -172,7 +172,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search sessions by provider name as admin, should succeed" () {
@@ -186,7 +186,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerProvider/ESB Ecars/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search sessions by stationID" () {
@@ -200,7 +200,7 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerStation/5f6978bb00355e4c01059bc7/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerStation/5f6978bb00355e4c01059bc7/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search sessions by pointID" () {
@@ -214,12 +214,12 @@ class FunctionalTests extends Specification {
         def token = JsonPath.parse(response.getResponse().getContentAsString()).read("token")
 
         then:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerPoint/5f6978c000355e4c0105a3e9_33287/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/SessionsPerPoint/5f6978c000355e4c0105a3e9_33287/20100101/20210101").header("X-OBSERVATORY-AUTH","Bearer "+token)).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Search nearby stations without login, should succeed" (){
         expect:
-        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/StationsNearby/0/0/100000")).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
+        mvc.perform(MockMvcRequestBuilders.get("/evcharge/api/StationsNearby/0/0/100000")).andExpect(MockMvcResultMatchers.status().isOk())
     }
 
     def "Try to logout after a successful login" () {
