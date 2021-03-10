@@ -3,6 +3,7 @@ import './SearchStations.css';
 import { pages } from '../app_essentials/App.js';
 import { getStationsNearby } from '../api_comm/api.js';
 import Map from './Map.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 class SearchStations extends React.Component{
   constructor(props){
@@ -78,10 +79,8 @@ class SearchStations extends React.Component{
         })
         .catch(err =>{
           this.setState({ stations: null });
-          if(err.response.data.message)
-            this.setState({ msg: err.response.data.message });
-          else
-            this.setState({ error: err.message });
+          let handler = new AppiErrorHandler(err);
+          this.setState({ msg: handler.getMessage(), error: handler.getError() });
         });
       this.setState({ map_center: [this.state.latitude, this.state.longitude] });
     }
@@ -90,7 +89,7 @@ class SearchStations extends React.Component{
   render(){
     return(
       <>
-        <p>A searchStations page</p>
+        <h5>Find stations earby</h5>
         <div>
           <p>Latitude</p>
           <input
@@ -122,6 +121,7 @@ class SearchStations extends React.Component{
           <button
             type="button"
             name="search"
+            className="btn waves-effect waves-light"
             onClick={this.handleSubmit}
           >
             Search

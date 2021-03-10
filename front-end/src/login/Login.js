@@ -2,6 +2,7 @@ import React from 'react';
 import './Login.css';
 import {pages} from '../app_essentials/App.js';
 import {postLoginUser} from '../api_comm/api.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 // the login page component
 class Login extends React.Component{
@@ -15,6 +16,7 @@ class Login extends React.Component{
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleReturn = this.handleReturn.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   // handle any change in input areas
@@ -22,6 +24,13 @@ class Login extends React.Component{
     const name = e.target.name;
     const value = e.target.value;
     this.setState({ [name]: value });
+  }
+
+  // submit form on enter pressed
+  handleKeyDown(e){
+    if (e.key === 'Enter') {
+      this.handleSubmit(e);
+    }
   }
 
   // handle the submit button of the form
@@ -54,11 +63,9 @@ class Login extends React.Component{
             });
           }, 0)
         })
-        .catch(err => {
-          if(err.response.data.message)
-            this.setState({ error: err.response.data.message });
-          else
-            this.setState({ error: err.message });
+        .catch(error => {
+          let handler = new AppiErrorHandler(error);
+          this.setState({ error: handler.getError() })
         });
     }
   }
@@ -86,6 +93,7 @@ class Login extends React.Component{
               placeholder="username"
               value={this.state.username}
               onChange={this.handleInput}
+              onKeyDown={this.handleKeyDown}
             />
             <p>Password</p>
             <input
@@ -95,10 +103,12 @@ class Login extends React.Component{
               placeholder="password"
               value={this.state.password}
               onChange={this.handleInput}
+              onKeyDown={this.handleKeyDown}
             />
             <button
               type="button"
               name="login"
+              className="btn waves-effect waves-light"
               onClick={this.handleSubmit}
             >
               Login
@@ -106,6 +116,7 @@ class Login extends React.Component{
             <button
               type="button"
               name="return"
+              className="btn waves-effect waves-light"
               onClick={this.handleReturn}
             >
               Continue as guest

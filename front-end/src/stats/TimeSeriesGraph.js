@@ -57,6 +57,7 @@ class TimeSeriesGraph extends React.Component{
         <button
           type="button"
           name="return"
+          className="btn waves-effect waves-light"
           onClick={this.props.page_callback}
         >
           return
@@ -92,13 +93,14 @@ class TimeSeriesGraph extends React.Component{
         <button
           type="button"
           name="makeGraph"
+          className="btn waves-effect waves-light"
           onClick={this.makeGraph}
         >
           Graph Stats
         </button>
         <p>{this.props.msg}</p>
-        {this.state.error !== null && (
-          <div className="error"><p>{this.state.error}</p></div>
+        {this.props.error !== null && (
+          <div className="error"><p>{this.props.error}</p></div>
         )}
         {this.props.graph_options && (
           <>

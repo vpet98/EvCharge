@@ -1,5 +1,6 @@
 import React from 'react';
 import { getHealthcheck } from '../api_comm/api.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 // the stats page for admin component
 class AdminStats extends React.Component {
@@ -27,9 +28,10 @@ class AdminStats extends React.Component {
       }, 0)
     })
     .catch(err => {
+      let handler = new AppiErrorHandler(err);
       this.setState({
         healthcheck_result: "Sorry. We got a problem",
-        error: err.message
+        error: handler.getError()
       });
     });
   }
@@ -41,6 +43,7 @@ class AdminStats extends React.Component {
         <button
           type="button"
           name="healthcheck"
+          className="btn waves-effect waves-light"
           onClick={this.handleCheckButton}
         >
           Check System

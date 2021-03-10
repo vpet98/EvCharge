@@ -14,8 +14,8 @@ class Banner extends React.Component{
   }
 
   componentDidMount() {
-        let elems = document.querySelectorAll('.dropdown-trigger');
-        M.Dropdown.init(elems, {inDuration: 300, outDuration: 225, coverTrigger: false});
+    let elems = document.querySelectorAll('.dropdown-trigger');
+    M.Dropdown.init(elems, {inDuration: 300, outDuration: 225, coverTrigger: false});
   }
 
   // handle click "go to login page" button
@@ -95,7 +95,8 @@ class Banner extends React.Component{
           className="btn waves-effect waves-light home_btn"
           name="home"
           onClick={this.handleHome}
-          > Home
+        >
+          Home
         </button>
       </div>
     );

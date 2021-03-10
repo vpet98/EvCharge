@@ -1,7 +1,9 @@
 import React from 'react';
 import TimeSeriesGraph from './TimeSeriesGraph.js';
 import { getStationShow, getSessionsPerStation, getSessionsPerPoint } from '../api_comm/api.js';
-
+import AppiErrorHandler from '../api_comm/error_handling.js';
+import './Stats.css';
+import M from 'materialize-css';
 
 // the stats page for operators component
 class OperatorStats extends React.Component {
@@ -16,36 +18,20 @@ class OperatorStats extends React.Component {
       show_graph: false,
       selected_station: null,
       stations: null,
-      points: null,
-      graph_object_type: null,
-      graph_object: null,
       msg: "",
       number_of_stations: 0,
       error: "",
+      graph_object_type: null,
+      graph_object: null,
+      graph_msg: "",
+      graph_error: "",
       graph_options: null
     };
 
-    this.handleApiCommError = this.handleApiCommError.bind(this);
-    this.handleStationBtn = this.handleStationBtn.bind(this);
     this.stationsGraphSwitch = this.stationsGraphSwitch.bind(this);
     this.pointsGraphSwitch = this.pointsGraphSwitch.bind(this);
     this.getData = this.getData.bind(this);
     this.graphSwitch = this.graphSwitch.bind(this);
-  }
-
-  // handle errors when communicating with api
-  handleApiCommError = err => {
-    if(err.response && err.response.data.status === 402){
-      this.setState({
-        msg: err.response.data.message,
-        error: ""
-      });
-    }else{
-      this.setState({
-        msg: "Sorry. We got a problem",
-        error: err.message
-      });
-    }
   }
 
   // once the page is ready search stations
@@ -58,27 +44,22 @@ class OperatorStats extends React.Component {
           msg: "",
           number_of_stations: json.data.NumberOfStations,
           stations: json.data.StationsList,
-        show_stations: true
+          show_stations: true
         });
       }, 0)
     })
-    .catch(this.handleApiCommError);
+    .catch(err => {
+      let handler = new AppiErrorHandler(err);
+      this.setState({
+        msg: handler.getMessage(),
+        error: handler.getError()
+      });
+    });
   }
 
-  // handle click station button
-  handleStationBtn(e){
-    if(!this.state.selected_station || this.state.selected_station.StationId !== e.target.name){
-      let target_station = this.state.stations.filter(station => {return station.StationId === e.target.name})[0];
-      this.setState({
-        points: target_station.PointsList,
-        selected_station: target_station,
-      });
-    }else{
-      this.setState({
-        selected_station: null,
-        points: null
-      });
-    }
+  componentDidUpdate() {
+    let collapsible = document.querySelectorAll(".collapsible");
+    M.Collapsible.init(collapsible, { accordion: false });
   }
 
   graphSwitch(){
@@ -104,14 +85,19 @@ class OperatorStats extends React.Component {
 
   // handle click charging point performance button
   pointsGraphSwitch(e){
-    let target_point = this.state.points.filter(point => {return point.PointId.toString() === e.target.name.toString()})[0];
+    let idObj = JSON.parse(e.target.name)
+    let stationId = idObj.StationId;
+    let pointId = idObj.PointId;
+    let target_station = this.state.stations.filter(station => station.StationId === stationId)[0];
+    let target_point = target_station.PointsList.filter(point => point.PointId.toString() === pointId.toString())[0];
     if(this.state.graph_object !== target_point)
       this.setState({
+        selected_station: target_station,
         graph_object: target_point,
         graph_object_type: this.graph_object_types.point,
         graph_options: null
       });
-      this.graphSwitch();
+    this.graphSwitch();
   }
 
   parseJsonToTimeseries(json, graph_kw){
@@ -147,7 +133,7 @@ class OperatorStats extends React.Component {
 
   // a function to fetch data from the api and refresh graph_options
   getData({from_date, to_date, graph_kw}){
-    this.setState({ graph_options: null, error: "", msg: "Fetching data..." });
+    this.setState({ graph_options: null, graph_error: "", graph_msg: "Fetching data..." });
     if(this.state.graph_object_type === this.graph_object_types.station){
       let req_obj = {
         StationId: this.state.graph_object.StationId,
@@ -166,10 +152,16 @@ class OperatorStats extends React.Component {
             graph_title: graph_kw ? "Energy delivered at every point" : "Charging sessions at every point",
             graph_aggregate: graph_kw ? json.data.TotalEnergyDelivered : json.data.NumberOfChargingSessions
           }
-          this.setState({ graph_options: res, msg: "" })
+          this.setState({ graph_options: res, graph_msg: "" })
         }, 0)
       })
-      .catch(this.handleApiCommError);
+      .catch(err => {
+        let handler = new AppiErrorHandler(err);
+        this.setState({
+          graph_msg: handler.getMessage(),
+          graph_error: handler.getError()
+        });
+      });
     }else if (this.state.graph_object_type === this.graph_object_types.point) {
       let req_obj = {
         StationId: this.state.selected_station.StationId,
@@ -190,10 +182,16 @@ class OperatorStats extends React.Component {
             graph_title: graph_kw ? "Energy delivered" : "Charging sessions",
             graph_aggregate: axis_y.reduce((a, b) => a + b, 0)
           }
-          this.setState({ graph_options: res, msg: "" });
+          this.setState({ graph_options: res, graph_msg: "" });
         }, 0)
       })
-      .catch(this.handleApiCommError);
+      .catch(err => {
+        let handler = new AppiErrorHandler(err);
+        this.setState({
+          graph_msg: handler.getMessage(),
+          graph_error: handler.getError()
+        });
+      });
     }
   }
 
@@ -203,38 +201,36 @@ class OperatorStats extends React.Component {
         {this.state.number_of_stations > 0 &&(
           <p>You have {this.state.number_of_stations} stations</p>
         )}
-        {this.state.stations.map(station =>
-          <div key={station.StationId}>
-            <button
-              type="button"
-              name={station.StationId}
-              onClick={this.handleStationBtn}
-            >
-              {station.Address}
-            </button>
-            {this.state.selected_station === station &&(
-              <div>
-                <button
-                  type="button"
+        <ul className="collapsible expandable">
+          {this.state.stations.map(station =>
+            <li key={station.StationId} className="collection-item">
+              <div className="collapsible-header">
+                <a href="#!">{station.Address}</a>
+              </div>
+              <div className="collapsible-body collection">
+                <a
                   name={station.StationId}
+                  href="#!"
+                  className="collection-item active"
                   onClick={this.stationsGraphSwitch}
                 >
                   total station performance
-                </button>
-                {this.state.points.map(point =>
-                  <button
+                </a>
+                {station.PointsList && station.PointsList.map(point =>
+                  <a
                     key={point.PointId}
-                    type="button"
-                    name={point.PointId}
+                    name={JSON.stringify({StationId: station.StationId, PointId : point.PointId})}
+                    className="collection-item"
+                    href="#!"
                     onClick={this.pointsGraphSwitch}
                   >
                     point {point.PointId}
-                  </button>
+                  </a>
                 )}
               </div>
-            )}
-          </div>
-        )}
+            </li>
+          )}
+        </ul>
       </>
     );
   }
@@ -243,22 +239,20 @@ class OperatorStats extends React.Component {
     return(
       <>
         <h5>Operator Stats</h5>
+        <p>{ this.state.msg }</p>
+        {this.state.error !== null && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
         {this.state.show_stations && (
-          <>
-            <p>{ this.state.msg }</p>
-            {this.state.error !== null && (
-              <div className="error"><p>{this.state.error}</p></div>
-            )}
-            {this.showStations()}
-          </>
+          this.showStations()
         )}
         {this.state.show_graph &&(
           <TimeSeriesGraph
             data_callback={this.getData}
             page_callback={this.graphSwitch}
             graph_options={this.state.graph_options}
-            msg={this.state.msg}
-            error={this.state.error}
+            msg={this.state.graph_msg}
+            error={this.state.graph_error}
             secondDataName="# of charges"
           />
         )}

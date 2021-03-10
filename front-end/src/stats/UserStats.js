@@ -1,6 +1,7 @@
 import React from 'react';
 import TimeSeriesGraph from './TimeSeriesGraph.js';
 import { getEvPerUser, getSessionsPerEv } from '../api_comm/api.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 // the stats page for users component
 class UserStats extends React.Component {
@@ -14,29 +15,14 @@ class UserStats extends React.Component {
       msg: "",
       number_of_evs: 0,
       error: "",
+      graph_msg: "",
+      graph_error: "",
       graph_options: null
     };
 
-    this.handleApiCommError = this.handleApiCommError.bind(this);
-    this.handleEvBtn = this.handleEvBtn.bind(this);
     this.getData = this.getData.bind(this);
     this.graphSwitch = this.graphSwitch.bind(this);
     this.evGraphSwitch = this.evGraphSwitch.bind(this);
-  }
-
-  // handle errors when communicating with api
-  handleApiCommError = err => {
-    if(err.response && err.response.data.status === 402){
-      this.setState({
-        msg: err.response.data.message,
-        error: ""
-      });
-    }else{
-      this.setState({
-        msg: "Sorry. We got a problem",
-        error: err.message
-      });
-    }
   }
 
   // once the page is ready search stations
@@ -53,7 +39,13 @@ class UserStats extends React.Component {
         });
       }, 0)
     })
-    .catch(this.handleApiCommError);
+    .catch(err => {
+      let handler = new AppiErrorHandler(err);
+      this.setState({
+        msg: handler.getMessage(),
+        error: handler.getError()
+      });
+    });
   }
 
   graphSwitch(){
@@ -65,23 +57,13 @@ class UserStats extends React.Component {
     });
   }
 
-  // handle click ev button
-  handleEvBtn(e){
-    if(this.state.selected_ev !== e.target.name){
-      this.setState({ selected_ev: e.target.name });
-    }else{
-      this.setState({ selected_ev: null });
-    }
-  }
-
   // handle click ev charges button
   evGraphSwitch(e){
     let target_ev = e.target.name;
-    if(this.state.selected_ev !== target_ev)
-      this.setState({
-        selected_ev: target_ev,
-        graph_options: null
-      });
+    this.setState({
+      selected_ev: target_ev,
+      graph_options: null
+    });
     this.graphSwitch();
   }
 
@@ -118,7 +100,7 @@ class UserStats extends React.Component {
 
   // a function to fetch data from the api and refresh graph_options
   getData({from_date, to_date, graph_kw}){
-    this.setState({ graph_options: null, error: "", msg: "Fetching data..." });
+    this.setState({ graph_options: null, graph_error: "", graph_msg: "Fetching data..." });
     let req_obj = {
       EvId: this.state.selected_ev,
       fDate: from_date,
@@ -137,10 +119,16 @@ class UserStats extends React.Component {
           graph_title: graph_kw ? "Energy delivered" : "Charging sessions cost",
           graph_aggregate: graph_kw ? json.data.TotalEnergyConsumed : axis_y.reduce((a, b) => a + b, 0)
         }
-        this.setState({ graph_options: res, msg: "" })
+        this.setState({ graph_options: res, graph_msg: "" })
       }, 0)
     })
-    .catch(this.handleApiCommError);
+    .catch(err => {
+      let handler = new AppiErrorHandler(err);
+      this.setState({
+        graph_msg: handler.getMessage(),
+        graph_error: handler.getError()
+      });
+    });
   }
 
   showEvs(){
@@ -149,28 +137,21 @@ class UserStats extends React.Component {
         {this.state.number_of_evs > 0 &&(
           <p>You have {this.state.number_of_evs} electric vehicles</p>
         )}
-        {this.state.evs.map(ev =>
-          <div key={ev}>
-            <button
-              type="button"
-              name={ev}
-              onClick={this.handleEvBtn}
-            >
-              {ev}
-            </button>
-            {this.state.selected_ev === ev &&(
-              <div>
-                <button
-                  type="button"
-                  name={ev}
-                  onClick={this.evGraphSwitch}
-                >
-                  charges history
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="collection">
+          {this.state.evs.map(ev =>
+            <div key={ev}>
+              <a
+                type="button"
+                href="#!"
+                className="collection-item"
+                name={ev}
+                onClick={this.evGraphSwitch}
+              >
+                {ev}
+              </a>
+            </div>
+          )}
+        </div>
       </>
     );
   }
@@ -179,22 +160,20 @@ class UserStats extends React.Component {
     return(
       <>
         <h5>User Stats</h5>
+        <p>{ this.state.msg }</p>
+        {this.state.error !== null && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
         {this.state.show_evs && (
-          <>
-            <p>{ this.state.msg }</p>
-            {this.state.error !== null && (
-              <div className="error"><p>{this.state.error}</p></div>
-            )}
-            {this.showEvs()}
-          </>
+          this.showEvs()
         )}
         {this.state.show_graph &&(
           <TimeSeriesGraph
             data_callback={this.getData}
             page_callback={this.graphSwitch}
             graph_options={this.state.graph_options}
-            msg={this.state.msg}
-            error={this.state.error}
+            msg={this.state.graph_msg}
+            error={this.state.graph_error}
             secondDataName="cost"
           />
         )}
