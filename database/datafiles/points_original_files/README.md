@@ -1,6 +1,6 @@
 # Raw datafiles
 
-Insert all raw data files in this foldre before trying to produce the final data
+Insert all raw data files in this folder before trying to produce the final data
 
 - names.csv  
 - electric_vehicles_data.json  
