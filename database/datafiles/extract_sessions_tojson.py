@@ -56,6 +56,7 @@ for line in stations_in:
 stations_in.close()
 point_ids = list(points.keys())
 
+out = open(sessions_out_file, 'w')
 for sessions_file in [sessions_file1, sessions_file2]:
     # for every event that we read pick a random charging point to assign to it
     # then according to the point port pick a random vehicle id for that event along with a random username
@@ -64,7 +65,6 @@ for sessions_file in [sessions_file1, sessions_file2]:
     tmp = json.load(sessions_in)
     sessions_in.close()
     data = tmp['_items']
-    out = open(sessions_out_file, 'w')
     for i in data:
         # extract timestamps in correct format
         startTime = str(formatTimestamp(i['connectionTime']))
