@@ -2,18 +2,16 @@
 
 Java 11
 
-gradle 6.8
+Spring
+
+Gradle 6.8
 
 ## Database
 
-Mongodb
+MongoDB 4.4
 
+## Περιεχόμενα
 
-Ενδεικτικά περιεχόμενα:
-
-- Πηγαίος κώδικας εφαρμογής για εισαγωγή, διαχείριση και
-  πρόσβαση σε δεδομένα (backend).
-- Database dump (sql ή json)
-- Back-end functional tests.
-- Back-end unit tests.
-- RESTful API.
+- Πηγαίος κώδικας εφαρμογής και RESTful API (evcharge/src/main)
+- Database dump (dump)
+- Back-end tests (evcharge/src/test)
