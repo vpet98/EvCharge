@@ -141,29 +141,10 @@ public class GeneralController {
     return false;
   }
 
-  // just some demo endpoints to check
-  // role based authorization
+  // just a demo endpoint for checking
   @GetMapping("/evcharge/test")
   public String allAccess() {
     return "Public Content.";
-  }
-
-  @GetMapping("/evcharge/user")
-  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public String userAccess() {
-    return "User Content.";
-  }
-
-  @GetMapping("/evcharge/operator")
-  @PreAuthorize("hasRole('OPERATOR')")
-  public String moderatorAccess() {
-    return "Moderator Board.";
-  }
-
-  @GetMapping("/evcharge/admin")
-  @PreAuthorize("hasRole('ADMIN')")
-  public String adminAccess() {
-    return "Admin Board.";
   }
 
   @GetMapping(value="/evcharge/api/admin/users/{username}")
@@ -632,7 +613,7 @@ public class GeneralController {
   // complete charging process
   @PostMapping("/evcharge/api/CheckOut/{sessionId}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public ResponseEntity<String> userActiveSessions(Authentication auth,
+  public ResponseEntity<String> completeCharging(Authentication auth,
   // below we need a string that the user is NEVER going to enter
   @RequestParam(value = "end", defaultValue = "electric vehicles suck, vescoukis-nickie not good professors (obvious lies)") String end,
   @RequestParam(value = "format", defaultValue = "json") String format,
@@ -869,7 +850,7 @@ public class GeneralController {
         return buildResponse(new MessageResponse("You cannot delete station of other operator", "status"), format);
     // delete station
     try {
-      stationRepository.delete(station);
+      stationRepository.delete(stationGet);
     }
     catch (Exception e) {
       return buildResponse(new MessageResponse("Failed to delete station", "status"), format);
@@ -892,8 +873,10 @@ public class GeneralController {
     List<Vehicle> vehicles = new ArrayList<Vehicle>();
     List<String> vehiclesIds = new ArrayList<String>();
     for (ChargeEvent ce : userEvents)
-      if (!vehiclesIds.contains(ce.getVehicleId()))
+      if (!vehiclesIds.contains(ce.getVehicleId())) {
         vehicles.add(vehicleRepository.findById(ce.getVehicleId()).get());
+        vehiclesIds.add(ce.getVehicleId());
+      }
     return buildResponse(new UserVehiclesResponse(vehicles), format);
   }
 

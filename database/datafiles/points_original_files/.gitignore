@@ -1,0 +1,6 @@
+# ignore everything
+*
+# but keep the names.csv
+!names.csv
+!README.md
+!.gitignore

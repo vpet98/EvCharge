@@ -38,7 +38,7 @@ export default function Map({center, zoom, stations, userPosition, changeUserPos
         center={center}
         zoom={zoom}
         scrollWheelZoom={true}
-        style={{height:"500px", width: "500px"}}
+        style={{height:"500px", width: "auto"}}
       >
       <ChangeView center={center} zoom={zoom} />
         <TileLayer

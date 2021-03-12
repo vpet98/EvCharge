@@ -55,7 +55,11 @@ class SearchStations extends React.Component{
   // else it updates the error message
   handleSubmit(e){
     this.setState({ msg: "", error: "" });
-    if(this.state.latitude < -90 || this.state.latitude > 90){
+    if(this.state.latitude === ""){
+      this.setState({ error: "Invalid coordinates: Enter a value for latitude" });
+    }else if(this.state.longitude === ""){
+      this.setState({ error: "Invalid coordinates: Enter a value for longitude" });
+    }else if(this.state.latitude < -90 || this.state.latitude > 90){
       this.setState({ error: "Invalid coordinates: Latitude needs to be between these bounds: [-90, 90]" });
     }else if(this.state.longitude < -180 || this.state.longitude > 180){
       this.setState({ error: "Invalid coordinates: Longitude needs to be between these bounds: [-180, 180]" });
@@ -89,54 +93,61 @@ class SearchStations extends React.Component{
   render(){
     return(
       <>
-        <h5>Find stations earby</h5>
-        <div>
-          <p>Latitude</p>
-          <input
-            type="number"
-            name="latitude"
-            field="latitude"
-            placeholder="latitude"
-            value={this.state.latitude}
-            onChange={this.handleInput}
-          />
-          <p>Longitude</p>
-          <input
-            type="number"
-            name="longitude"
-            field="longitude"
-            placeholder="longitude"
-            value={this.state.longitude}
-            onChange={this.handleInput}
-          />
-          <p>Radius (in km)</p>
-          <input
-            type="number"
-            name="radius"
-            field="radius"
-            placeholder="radius"
-            value={this.state.radius}
-            onChange={this.handleInput}
-          />
-          <button
-            type="button"
-            name="search"
-            className="btn waves-effect waves-light"
-            onClick={this.handleSubmit}
-          >
-            Search
-          </button>
-          <p>{this.state.msg}</p>
-          {this.state.error && (
-            <div className="error"><p>{this.state.error}</p></div>
-          )}
+        <h5>Find stations nearby</h5>
+        <p>Click everywhere in the map to find stations</p>
+        <p>{this.state.msg}</p>
+        {this.state.error && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
+        <div className="row">
+          <div className="col s3" style={{paddingLeft:"0px"}}>
+            <ul className="side-menu">
+              <li><p>Latitude</p></li>
+              <li><input
+                type="number"
+                name="latitude"
+                field="latitude"
+                placeholder="latitude"
+                value={this.state.latitude}
+                onChange={this.handleInput}
+              /></li>
+              <li><p>Longitude</p></li>
+              <li><input
+                type="number"
+                name="longitude"
+                field="longitude"
+                placeholder="longitude"
+                value={this.state.longitude}
+                onChange={this.handleInput}
+              /></li>
+              <li><p>Radius (in km)</p></li>
+              <li><input
+                type="number"
+                name="radius"
+                field="radius"
+                placeholder="radius"
+                value={this.state.radius}
+                onChange={this.handleInput}
+              /></li>
+              <li><button
+                type="button"
+                name="search"
+                className="btn waves-effect waves-light"
+                onClick={this.handleSubmit}
+              >
+                Search
+              </button></li>
+            </ul>
+          </div>
+          <div className="col s9" style={{paddingRight:"0px"}}>
+            <Map
+            center={this.state.map_center}
+            zoom={13}
+            stations={this.state.stations}
+            userPosition={this.state.userPosition}
+            changeUserPositionCallback={this.handleUserPosition}/>
+          </div>
         </div>
-        <Map
-          center={this.state.map_center}
-          zoom={13}
-          stations={this.state.stations}
-          userPosition={this.state.userPosition}
-          changeUserPositionCallback={this.handleUserPosition}/>
       </>
     );
   }
