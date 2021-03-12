@@ -55,7 +55,11 @@ class SearchStations extends React.Component{
   // else it updates the error message
   handleSubmit(e){
     this.setState({ msg: "", error: "" });
-    if(this.state.latitude < -90 || this.state.latitude > 90){
+    if(this.state.latitude === ""){
+      this.setState({ error: "Invalid coordinates: Enter a value for latitude" });
+    }else if(this.state.longitude === ""){
+      this.setState({ error: "Invalid coordinates: Enter a value for longitude" });
+    }else if(this.state.latitude < -90 || this.state.latitude > 90){
       this.setState({ error: "Invalid coordinates: Latitude needs to be between these bounds: [-90, 90]" });
     }else if(this.state.longitude < -180 || this.state.longitude > 180){
       this.setState({ error: "Invalid coordinates: Longitude needs to be between these bounds: [-180, 180]" });
@@ -71,7 +75,6 @@ class SearchStations extends React.Component{
       getStationsNearby(req_params)
         .then(json => {
           setTimeout(() => {
-//            console.log(json.data)
             this.setState({
               stations: json.data.Stations,
               msg: 'Found ' + json.data.Stations.length + ' stations'
