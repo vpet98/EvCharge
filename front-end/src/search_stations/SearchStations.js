@@ -89,54 +89,61 @@ class SearchStations extends React.Component{
   render(){
     return(
       <>
-        <h5>Find stations earby</h5>
-        <div>
-          <p>Latitude</p>
-          <input
-            type="number"
-            name="latitude"
-            field="latitude"
-            placeholder="latitude"
-            value={this.state.latitude}
-            onChange={this.handleInput}
-          />
-          <p>Longitude</p>
-          <input
-            type="number"
-            name="longitude"
-            field="longitude"
-            placeholder="longitude"
-            value={this.state.longitude}
-            onChange={this.handleInput}
-          />
-          <p>Radius (in km)</p>
-          <input
-            type="number"
-            name="radius"
-            field="radius"
-            placeholder="radius"
-            value={this.state.radius}
-            onChange={this.handleInput}
-          />
-          <button
-            type="button"
-            name="search"
-            className="btn waves-effect waves-light"
-            onClick={this.handleSubmit}
-          >
-            Search
-          </button>
-          <p>{this.state.msg}</p>
-          {this.state.error && (
-            <div className="error"><p>{this.state.error}</p></div>
-          )}
+        <h5>Find stations nearby</h5>
+        <p>Click everywhere in the map to find stations</p>
+        <p>{this.state.msg}</p>
+        {this.state.error && (
+          <div className="error"><p>{this.state.error}</p></div>
+        )}
+        <div className="row">
+          <div className="col s3" style={{paddingLeft:"0px"}}>
+            <ul className="side-menu">
+              <li><p>Latitude</p></li>
+              <li><input
+                type="number"
+                name="latitude"
+                field="latitude"
+                placeholder="latitude"
+                value={this.state.latitude}
+                onChange={this.handleInput}
+              /></li>
+              <li><p>Longitude</p></li>
+              <li><input
+                type="number"
+                name="longitude"
+                field="longitude"
+                placeholder="longitude"
+                value={this.state.longitude}
+                onChange={this.handleInput}
+              /></li>
+              <li><p>Radius (in km)</p></li>
+              <li><input
+                type="number"
+                name="radius"
+                field="radius"
+                placeholder="radius"
+                value={this.state.radius}
+                onChange={this.handleInput}
+              /></li>
+              <li><button
+                type="button"
+                name="search"
+                className="btn waves-effect waves-light"
+                onClick={this.handleSubmit}
+              >
+                Search
+              </button></li>
+            </ul>
+          </div>
+          <div className="col s9" style={{paddingRight:"0px"}}>
+            <Map
+            center={this.state.map_center}
+            zoom={13}
+            stations={this.state.stations}
+            userPosition={this.state.userPosition}
+            changeUserPositionCallback={this.handleUserPosition}/>
+          </div>
         </div>
-        <Map
-          center={this.state.map_center}
-          zoom={13}
-          stations={this.state.stations}
-          userPosition={this.state.userPosition}
-          changeUserPositionCallback={this.handleUserPosition}/>
       </>
     );
   }
