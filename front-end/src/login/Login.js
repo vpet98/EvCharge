@@ -11,6 +11,7 @@ class Login extends React.Component{
     this.state = {
       username: "",
       password: "",
+      message: null,
       error: null
     };
     this.handleInput = this.handleInput.bind(this);
@@ -37,11 +38,11 @@ class Login extends React.Component{
   // If everything OK then change the page of the App and return user
   // else return error
   handleSubmit(e){
-    this.setState({ error: null });
+    this.setState({ message: "Logging in...", error: null });
     if(this.state.username === ""){
-      this.setState({ error: "You have to fill in your username" });
+      this.setState({ message: null, error: "You have to fill in your username" });
     }else if(this.state.password === ""){
-      this.setState({ error: "You have to fill in your password" });
+      this.setState({ message: null, error: "You have to fill in your password" });
     }else{
       let reqObj = {
         username: this.state.username,
@@ -65,7 +66,11 @@ class Login extends React.Component{
         })
         .catch(error => {
           let handler = new AppiErrorHandler(error);
-          this.setState({ error: handler.getError() })
+          let txt = handler.getMessage();
+          if(txt !== null){
+            if(handler.getError() !== null) txt = txt + '\n' + handler.getError();
+          }else txt = handler.getError();
+          this.setState({ message: null, error: txt })
         });
     }
   }
@@ -121,6 +126,9 @@ class Login extends React.Component{
             >
               Continue as guest
             </button>
+            {this.state.message !== null && (
+              <p>{this.state.message}</p>
+            )}
             {this.state.error !== null && (
               <div className="error"><p>{this.state.error}</p></div>
             )}
