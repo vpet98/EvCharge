@@ -8,7 +8,7 @@ import os
 from os.path import expanduser
 urllib3.disable_warnings()
 
-home = expanduser("~")	#https://stackoverflow.com/questions/4028904/how-to-get-the-home-directory-in-python		
+home = expanduser("~")	#https://stackoverflow.com/questions/4028904/how-to-get-the-home-directory-in-python
 path_of_token = "%s/softeng20bAPI.token" % home
 
 
@@ -17,7 +17,7 @@ def test_login():
 	result = runner.invoke(ev_group46.Login, ['--username', 'admin', '--passw' ,'petrol4ever'])
 	assert result.exit_code == 0
 	assert result.output == 'login was successful\n'
-    
+
 def test_logout():
 	runner = CliRunner()
 	token_file = open(path_of_token, 'r')
