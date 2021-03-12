@@ -5,27 +5,40 @@ class Charge extends React.Component{
 
   render(){
     return(
+      <div>
       <div className="begin_charging_page">
-        <h4>Start Charging</h4>
+        <h1>Start Charging</h1>
           <GetInfo state={this.props.state} handleInput={this.props.handleInput}
                       handleEnterInfo={this.props.handleEnterInfo}/>
           {this.props.state.error &&(
             <div className="error"><p>{this.props.state.error}</p></div>
           )}
-          {!this.props.state.error && this.props.state.protocol_cost &&(
-            <div className="charging_avaiable">
-              <div> Protocol: {this.props.state.protocol_cost.protocol}</div>
-              <div> Cost: {this.props.state.protocol_cost.cost}</div>
+      </div>
+      {!this.props.state.error && this.props.state.protocol_cost &&(
+          <div className="charging_avaiable">
+              <div className="chargeDetails">
+                <p> <p class="thick">Protocol:</p> {this.props.state.protocol_cost.protocol}</p>
+                <p> <p class="thick">Cost:</p> {this.props.state.protocol_cost.cost}</p>
+               </div>
               <ChooseCostOrAmount state={this.props.state} handleInput={this.props.handleInput}
                                                         startcharging={this.props.startcharging}/>
             </div>
-          )}
-        </div>
+      )}
+      </div>
     );
   }
 }
 
 class GetInfo extends React.Component{
+  constructor(props){
+    super(props);
+    this.handleInput = this.handleInput.bind(this);
+  }
+
+  handleInput(e){
+    this.props.handleInput(e);
+    this.props.handleInput({target: {name: 'protocol_cost', value: null}});
+  }
 
   render() {
     return(
@@ -38,7 +51,7 @@ class GetInfo extends React.Component{
               field="vehicle"
               placeholder="vehicle"
               value={this.props.state.vehicle}
-              onChange={this.props.handleInput}
+              onChange={this.handleInput}
             />
           <p>Station</p>
             <input
@@ -47,7 +60,7 @@ class GetInfo extends React.Component{
               field="station"
               placeholder="station"
               value={this.props.state.station}
-              onChange={this.props.handleInput}
+              onChange={this.handleInput}
             />
           <p>Station Point</p>
             <input
@@ -56,11 +69,12 @@ class GetInfo extends React.Component{
               field="point"
               placeholder="point"
               value={this.props.state.point}
-              onChange={this.props.handleInput}
+              onChange={this.handleInput}
             />
         <button
           type="button"
           name="enter_info"
+          className="btn waves-effect waves-light"
           onClick={this.props.handleEnterInfo}
         > Check
         </button>
@@ -74,7 +88,7 @@ class ChooseCostOrAmount extends React.Component{
   render(){
     return(
       <div className="choose_cost_or_amount">
-        <h4>Choose charging cost or energy.</h4>
+        <h5>Choose charging cost or energy.</h5>
         <p>Cost</p>
         <input
           type="text"
@@ -94,14 +108,13 @@ class ChooseCostOrAmount extends React.Component{
           onChange={this.props.handleInput}
         />
         {(this.props.state.cost !== "" || this.props.state.amount !== "") &&(
-          <>
           <button
             type="button"
             name="start_charging"
+            className="btn waves-effect waves-light"
             onClick={this.props.startcharging}
           > Start Charging!
           </button>
-          </>
         )}
       </div>
       );

@@ -2,17 +2,9 @@ import React from 'react';
 import {user_roles} from '../app_essentials/App.js';
 import {creditCardPayment} from '../api_comm/api.js';
 import './Payment.css';
-import {loadStripe} from '@stripe/stripe-js'
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useRouteMatch,
-  useParams
-} from "react-router-dom";
+import Cards from 'react-credit-cards'
+import 'react-credit-cards/es/styles-compiled.css'
 
-const stripePromise = loadStripe('pk_test_51IRF2wCiDDET7BaUBVnorIxVLt8UCxx7ypI7c3RIW70GKYHeo9qFX2dL18L4UDWKwDtdFHdVrR8bOz5aOcXqMMvL00sAQS7Ui0');
 
 class Payment extends React.Component{
   constructor(props){
@@ -36,6 +28,7 @@ class Payment extends React.Component{
         <button
           type="button"
           name="cash"
+          class="btn_pay"
           value={this.state.cash}
           onClick={this.handlePaymentMethod}
           > Cash
@@ -43,6 +36,7 @@ class Payment extends React.Component{
         <button
           type="button"
           name="credit_card"
+          class="btn_pay"
           value={!this.state.cash}
           onClick={this.handlePaymentMethod}
         > Credit Card
@@ -64,6 +58,7 @@ class Payment extends React.Component{
       <button
         type="button"
         name="Checkout"
+        className="btn waves-effect waves-light"
         onClick={this.props.handleCheckout}
         > Finish Charging
       </button>
@@ -84,6 +79,7 @@ class Cash extends React.Component{
           <button
             type="button"
             name="Checkout"
+            className="btn waves-effect waves-light"
             onClick={this.props.handleCheckout}
             > Finish Charging
           </button>
@@ -101,56 +97,97 @@ class CreditCard extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      cash: true,
-      error: null
+      number: '',
+      name: '',
+      expiry: '',
+      cvc: '',
+      focus: '',
+      issuer: '',
+      error: ''
     };
+    this.handleInput = this.handleInput.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleCallback = this.handleCallback.bind(this);
     this.handlePayment = this.handlePayment.bind(this);
   };
 
-  handlePayment(e){
-    const stripe = window.Stripe('pk_test_51IRF2wCiDDET7BaUBVnorIxVLt8UCxx7ypI7c3RIW70GKYHeo9qFX2dL18L4UDWKwDtdFHdVrR8bOz5aOcXqMMvL00sAQS7Ui0');
-    let info = {
-      sessionId: this.props.state.sessionId,
-      token: this.props.user.token
-    }
-    creditCardPayment(info)
-      .then(json => {
-        setTimeout(() => {
-          console.log(json);
-          if (!json.data.Response){
-            const res = stripe.redirectToCheckout({
-              sessionId : json.data.session
-            });
-            if(res.error){
-              this.setState({error: res.error.message});
-            }
-            else{
-              this.props.handleCheckout();
-            }
-          }
-          else
-            this.setState({ error: json.data.Response });
-        }, 0)
-      })
-      .catch(err =>{
-        this.setState({ error: err.response.data.message });
-      });
+  handleInput(e){
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value });
+  }
 
-}
+  handleFocus(e){
+    this.setState({focus: e.target.name});
+  }
+
+  handleCallback({issuer}, isValid) {
+    if(isValid) {
+      this.setState({ issuer });
+    }
+  }
+
+  handlePayment() {
+    if (this.state.issuer !== ''){
+      this.props.handleCheckout();
+    }
+  }
 
   render(){
     return(
       <div className="CreditCard">
-        <p>Credit Card Info</p>
+        <Cards
+          number={this.state.number}
+          name={this.state.name}
+          expiry={this.state.expiry}
+          cvc={this.state.cvc}
+          focused={this.state.focus}
+          callback={this.handleCallback}
+        />
+        <input
+          type="tel"
+          name="number"
+          placeholder="Card Number"
+          value={this.state.number}
+          onChange={this.handleInput}
+          onFocus={this.handleFocus}
+        />
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={this.state.name}
+          onChange={this.handleInput}
+          onFocus={this.handleFocus}
+        />
+        <input
+          type="text"
+          name="expiry"
+          placeholder="MM/YY Expiry"
+          value={this.state.expiry}
+          onChange={this.handleInput}
+          onFocus={this.handleFocus}
+        />
+        <input
+          type="tel"
+          name="cvc"
+          placeholder="CVC"
+          value={this.state.cvc}
+          onChange={this.handleInput}
+          onFocus={this.handleFocus}
+        />
         <button
           type="button"
           name="pay"
+          className="btn waves-effect waves-light"
           role="link"
           onClick={this.handlePayment}
         > Pay
         </button>
         {this.state.error !== null && (
-          <div className="error"><p>{this.state.error}</p></div>
+          <div className="error">
+            <p>{this.state.error}</p>
+          </div>
         )}
       </div>
     );

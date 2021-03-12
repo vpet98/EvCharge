@@ -61,8 +61,8 @@ class Banner extends React.Component{
     let userName = this.props.user ? this.props.user.username : "<anonymous>";
     return(
       <div className="banner">
-        <h4 onClick={this.handleHome} >EvCharge</h4>
-        <img src="../logo192.png" alt="Logo" onClick={this.handleHome}/>
+          <h3 onClick={this.handleHome} >
+          <img src="../logo192.png" alt="Logo" onClick={this.handleHome}/>EvCharge</h3>
         {this.props.user !== null &&(
           <div className="user_menu">
             <a

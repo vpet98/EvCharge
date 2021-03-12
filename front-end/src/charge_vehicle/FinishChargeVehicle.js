@@ -87,14 +87,15 @@ class FinishChargeVehicle extends React.Component{
       )}
       {availableSessions && this.state.status === "" &&(
       <div className="ActiveSessions">
-        <h4>Active Sessions</h4>
         <ActiveSessions
           user={this.props.user}
           handleInput={this.handleInput}/>
         {this.state.sessionId !== "" &&(
           <div className="ChosenSession">
-            <p>Chosen session: {this.state.sessionId}</p>
-            <p>Cost: {this.state.cost}</p>
+            <div className="details">
+              <p> <p class="thick">Chosen session:</p> {this.state.sessionId} </p>
+              <p> <p class="thick">Cost:</p> {this.state.cost} € </p>
+            </div>
             <Payment
               user={this.props.user}
               state={this.state}
@@ -107,15 +108,16 @@ class FinishChargeVehicle extends React.Component{
       </div>
       )}
       {availableSessions && this.state.status === "Ok" &&(
-        <div>
+        <>
           <h4>Session successfully terminated!</h4>
           <button
             type="button"
             name="refresh"
+            className="btn waves-effect waves-light"
             onClick={this.handleRefresh}
           > Continue here
           </button>
-        </div>
+        </>
       )}
       </>
     );

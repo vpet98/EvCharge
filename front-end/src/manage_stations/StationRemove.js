@@ -54,14 +54,18 @@ class StationRemove extends React.Component{
   render(){
     return(
       <div className="RemoveStation">
-        <button
-          type="button"
-          name="RemoveStation"
-          onClick={this.handleRemove}
-          > -
-        </button>
+        {!this.state.insert_mode && (
+          <button
+            type="button"
+            name="RemoveStation"
+            className="btn waves-effect waves-light remove_btn"
+            onClick={this.handleRemove}
+            > -
+          </button>
+        )}
         {this.state.insert_mode &&(
           <div className="RemoveProcess">
+            <h5>Insert Station Id</h5>
             <input
               type="text"
               name="stationId"
@@ -73,12 +77,14 @@ class StationRemove extends React.Component{
             <button
               type="button"
               name="Remove"
+              className="btn waves-effect waves-light remove_btn"
               onClick={this.removeStations}
             > Remove
             </button>
             <button
               type="button"
               name="close"
+              className="btn waves-effect waves-light close_btn"
               onClick={this.handleRemove}
             > Close
             </button>

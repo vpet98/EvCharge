@@ -1,8 +1,17 @@
 /* TODO -- style app */
 
 h1 {
+  position: relative;
   font-family: sans-serif;
   color: gold;
+  text-align: left;
+  text-shadow: 2px 2px black;
+}
+
+.container {
+  position: relative;
+  top: 0;
+  left: 0;
 }
 
 .App {

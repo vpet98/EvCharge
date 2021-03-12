@@ -1,0 +1,15 @@
+.Stations {
+  float: left;
+  width: 45%;
+  margin-right: 2%;
+  margin-top: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}
+
+ul.myul {
+  height: 300px;
+  overflow: hidden;
+  overflow-y: scroll;
+}

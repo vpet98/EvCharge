@@ -43,11 +43,13 @@ class ActiveSessions extends React.Component{
   render(){
     return(
       <div className="Sessions">
+        <h5>Active Sessions</h5>
         {this.state.active_sessions.map((item,i) =>
           <button
             key={i}
             type="button"
             name={item.SessionID}
+            className="btn waves-effect waves-light"
             value={item.CurrentCost}
             onClick={this.chooseSession}
           > SessionID: {item.SessionID}, Cost: {item.CurrentCost}
@@ -56,6 +58,7 @@ class ActiveSessions extends React.Component{
         <button
           type="button"
           name="Refresh"
+          className="btn waves-effect waves-light btn_refresh"
           onClick={this.getsessions}
         > Refresh
         </button>

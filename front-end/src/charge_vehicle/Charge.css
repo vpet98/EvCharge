@@ -1,0 +1,36 @@
+p.thick {
+  font-weight: bold;
+  display: inline;
+}
+
+.begin_charging_page {
+  height: 30%;
+}
+
+.enter_charging_data_div {
+  float: left;
+  width: 45%;
+  margin-right: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}
+
+.chargeDetails {
+  float: left;
+  width: 45%;
+  margin-left: 2%;
+  margin-bottom: 2%;
+  border-radius: 10px;
+  background-color: #f2f2f2;
+  text-align: center;
+}
+
+.choose_cost_or_amount {
+  float: left;
+  width: 45%;
+  margin-left: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}

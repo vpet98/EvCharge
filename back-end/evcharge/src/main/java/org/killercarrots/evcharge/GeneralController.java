@@ -629,63 +629,6 @@ public class GeneralController {
     return buildResponse(new ActiveSessionsResponse(map), format);
   }
 
-  @PostMapping("/evcharge/api/CreditCardPayment/{sessionId}")
-  @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")
-  public ResponseEntity<String> Payment(Authentication auth,
-  @RequestParam(value = "format", defaultValue = "json") String format,
-  @PathVariable(value = "sessionId") String sessionId) throws BadRequestException {
-
-    ActiveSession activeSession = activeSessionRepository.findById(sessionId)
-        .orElseThrow(() -> new BadRequestException("No such active charging session"));
-    ActiveSession session = activeSessionRepository.findById(sessionId).get();
-    String username = auth.getName();
-    if (!session.getUser().equals(username))
-      throw new BadRequestException("Only the user who started this charging session can pay for it");
-    Station station = stationRepository.findById(session.getStationId()).get();
-    Point point = new Point();
-    Set<Point> points = station.getPoints();
-    for (Point p : points)
-      if (Integer.toString(p.getLocalId()).equals(session.getPointId().split("_")[1]))
-        point = p;
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    // calculate current chargine time
-    LocalDateTime now = LocalDateTime.now();
-    long diff = ChronoUnit.SECONDS.between(LocalDateTime.parse(session.getStartTime(), dtf), now);
-    // calculate current cost
-    double currentCost = (diff/3600.0)*point.getPower()*session.getCostPerKWh();
-    Long cost = (new Double(currentCost*100)).longValue();
-
-    port(8765);
-    Stripe.apiKey = "sk_test_51IRF2wCiDDET7BaU8ZuuZN4zRTb6VbpmgJmKolp5iOXFc4Az5A53Lnh08RTsmiBfWJI9H9oY1yMAQBKXX05S1KmR004iERt3n6";
-    SessionCreateParams params =
-        SessionCreateParams.builder()
-          .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-          .setMode(SessionCreateParams.Mode.PAYMENT)
-          .setSuccessUrl("http://localhost:3000/")
-          .setCancelUrl("http://localhost:3000")
-          .addLineItem(
-          SessionCreateParams.LineItem.builder()
-            .setQuantity(1L)
-            .setPriceData(
-              SessionCreateParams.LineItem.PriceData.builder()
-                .setCurrency("eur")
-                .setUnitAmount(cost)
-                .setProductData(
-                  SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                    .setName("energy")
-                  .build())
-                .build())
-              .build())
-            .build();
-
-    try{
-      Session newsession = Session.create(params);
-      return buildResponse(new MessageResponse(newsession.getId(), "session"), format);
-    } catch (Exception e) {
-        return buildResponse(new MessageResponse("error", "session"), format);
-      }
-  }
-
   // complete charging process
   @PostMapping("/evcharge/api/CheckOut/{sessionId}")
   @PreAuthorize("hasRole('USER') or hasRole('OPERATOR') or hasRole('ADMIN')")

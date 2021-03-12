@@ -2,13 +2,13 @@
 
 footer {
   position: relative;
-  left: 0;
   bottom: 0;
+  left: 0;
   width: 100%;
   background-color: DarkSalmon;
   color: white;
   text-align: center;
   padding-top: 3px;
   padding-bottom: 2px;
-  margin-top: 80px;
+  margin-top: 100%;
 }

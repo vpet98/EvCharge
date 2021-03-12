@@ -115,13 +115,16 @@ class ChargeVehicle extends React.Component{
        {this.state.page === charging_pages.SuccessfulCharging &&(
          <div className="SuccessfulChargingPage">
           <h4>Charging has successfully begun!</h4>
-            <p>Charging info:</p>
-              <div> Vehicle: {this.state.vehicle}</div>
-              <div> Expected Cost: {this.state.cost}</div>
-            <p>Now finish your charging and pay here.</p>
+            <div className="details">
+              <h5>Charging info:</h5>
+              <p> <p class="thick">Vehicle:</p> {this.state.vehicle} </p>
+              <p> <p class="thick">Expected Cost:</p> {this.state.cost} € </p>
+            </div>
+            <h5>Now finish your charging and pay here.</h5>
             <button
               type="button"
               name="pay"
+              className="btn waves-effect waves-light"
               onClick={this.gotoPayingPage}
             > Pay
             </button>

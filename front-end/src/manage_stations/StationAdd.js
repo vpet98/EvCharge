@@ -69,24 +69,29 @@ class StationAdd extends React.Component{
   render(){
     return(
       <div className="AddStation">
-        <button
-          type="button"
-          name="AddStation"
-          onClick={this.handleAdd}
-          > +
-        </button>
+        {!this.state.insert_mode && (
+          <button
+            type="button"
+            name="AddStation"
+            className="btn waves-effect waves-light add_btn"
+            onClick={this.handleAdd}
+            > +
+          </button>
+        )}
         {this.state.insert_mode &&(
-          <div>
+          <div className="AddStationInfo">
             <GetInfo state={this.state} handleInput={this.handleInput}/>
             <button
               type="button"
               name="Add"
+              className="btn waves-effect waves-light add_btn"
               onClick={this.addStations}
             > Add
             </button>
             <button
               type="button"
               name="close"
+              className="btn waves-effect waves-light close_btn"
               onClick={this.handleAdd}
             > Close
             </button>
@@ -108,6 +113,7 @@ class GetInfo extends React.Component{
   render(){
     return(
       <div className="InsertInfo">
+        <h5>Insert Station Info</h5>
         <input
           type="text"
           name="id"
@@ -197,6 +203,7 @@ class Point extends React.Component{
         <button
           type="button"
           name="AddPoint"
+          className="btn waves-effect waves-light add_btn"
           onClick={this.handleAdd}
         > +
         </button>
