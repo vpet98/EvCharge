@@ -71,6 +71,7 @@ class SearchStations extends React.Component{
       getStationsNearby(req_params)
         .then(json => {
           setTimeout(() => {
+//            console.log(json.data)
             this.setState({
               stations: json.data.Stations,
               msg: 'Found ' + json.data.Stations.length + ' stations'
@@ -89,7 +90,7 @@ class SearchStations extends React.Component{
   render(){
     return(
       <>
-        <h5>Find stations earby</h5>
+        <h5>Find stations nearby</h5>
         <div>
           <p>Latitude</p>
           <input

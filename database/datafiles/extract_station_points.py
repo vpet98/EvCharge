@@ -13,7 +13,7 @@ for line in points_in:
     point = json.loads(line)
     try:
         station['_id'] = point['_id']['$oid']
-        station['operator'] = point['OperatorInfo']['Title']
+        station['operator'] = point['OperatorInfo']['Title'].replace('\n', '')
         station['cost'] = float(randint(3,10))/10
         skip = False
         for i in station.keys():
@@ -23,8 +23,8 @@ for line in points_in:
         if skip:
             continue
         station['location'] = {}
-        station['location']['address'] = point['AddressInfo']['AddressLine1']
-        station['location']['country'] = point['AddressInfo']['Country']['Title']
+        station['location']['address'] = point['AddressInfo']['AddressLine1'].replace('\n', '').replace('\r', ' ').replace('\"', '').replace('\t', '')
+        station['location']['country'] = point['AddressInfo']['Country']['Title'].replace('\n', '').replace('\r', ' ').replace('\t', '')
         lat = point['AddressInfo']['Latitude']
         lon = point['AddressInfo']['Longitude']
         geo = {'type': "Point", 'coordinates': [lon, lat]}
