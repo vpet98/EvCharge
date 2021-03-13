@@ -71,33 +71,36 @@ class TimeSeriesGraph extends React.Component{
               Kw/h
             </label>
           </div>
-          <label>From </label>
-          <DatePicker
-            type="date"
-            name="fDate"
-            dateFormat="dd MMM yyyy"
-            selected={this.state.fDate}
-            className="datepicker"
-            onChange={this.handleFDateInput}
-          />
-          <label>To </label>
-          <DatePicker
-            type="date"
-            name="tDate"
-            dateFormat="dd MMM yyyy"
-            selected={this.state.tDate}
-            className="datepicker"
-            onChange={this.handleTDateInput}
-          />
+          <div style={{display: 'flex', flexDirection: 'row'}}>
+            <label>From </label>
+            <DatePicker
+              popperProps={{ positionFixed: true }}
+              type="date"
+              name="fDate"
+              dateFormat="dd MMM yyyy"
+              selected={this.state.fDate}
+              className="datepicker"
+              onChange={this.handleFDateInput}
+            />
+            <label>To </label>
+            <DatePicker
+              type="date"
+              name="tDate"
+              dateFormat="dd MMM yyyy"
+              selected={this.state.tDate}
+              className="datepicker"
+              onChange={this.handleTDateInput}
+            />
+            <button
+              type="button"
+              name="makeGraph"
+              className="btn waves-effect waves-light"
+              onClick={this.makeGraph}
+            >
+              Graph Stats
+            </button>
+          </div>
         </form>
-        <button
-          type="button"
-          name="makeGraph"
-          className="btn waves-effect waves-light"
-          onClick={this.makeGraph}
-        >
-          Graph Stats
-        </button>
         <p>{this.props.msg}</p>
         {this.props.error !== null && (
           <div className="error"><p>{this.props.error}</p></div>

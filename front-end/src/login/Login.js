@@ -102,7 +102,7 @@ class Login extends React.Component{
             />
             <p>Password</p>
             <input
-              type="text" // IDEA -- change to type="password"
+              type="password"
               name="password"
               field="password"
               placeholder="password"
