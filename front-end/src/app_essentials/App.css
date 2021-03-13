@@ -1,5 +1,21 @@
 /* TODO -- style app */
 
+.chargingPage .content {
+  min-height: calc(107vh);
+}
+
+.finishChargingPage .content {
+  min-height: calc(190vh);
+}
+
+.stationsPage .content {
+  min-height: calc(180vh);
+}
+
+.content {
+  min-height: calc(100vh - 69px);
+}
+
 h1 {
   position: relative;
   font-family: sans-serif;

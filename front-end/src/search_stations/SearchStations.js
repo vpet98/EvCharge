@@ -94,7 +94,7 @@ class SearchStations extends React.Component{
     return(
       <>
         <h5>Find stations nearby</h5>
-        <p>Click everywhere in the map to find stations</p>
+        <p>Click anywhere in the map to find stations</p>
         <p>{this.state.msg}</p>
         {this.state.error && (
           <div className="error"><p>{this.state.error}</p></div>

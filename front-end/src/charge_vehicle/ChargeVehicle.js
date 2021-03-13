@@ -118,7 +118,7 @@ class ChargeVehicle extends React.Component{
             <div className="details">
               <h5>Charging info:</h5>
               <p> <p class="thick">Vehicle:</p> {this.state.vehicle} </p>
-              <p> <p class="thick">Expected Cost:</p> {this.state.cost} € </p>
+              <p> <p class="thick">Expected Cost:</p> {Number(this.state.cost).toFixed(2)} € </p>
             </div>
             <h5>Now finish your charging and pay here.</h5>
             <button

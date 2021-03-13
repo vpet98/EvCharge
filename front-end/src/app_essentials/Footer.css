@@ -1,15 +1,4 @@
 /* TODO -- style footer */
-/*
-body {
-   display: flex;
-   min-height: 100vh;
-   flex-direction: column;
- }
-
- main {
-   flex: 1 0 auto;
- }
-*/
 
 footer {
   position: relative;
@@ -20,11 +9,14 @@ footer {
   color: white;
   text-align: center;
   padding-top: 3px;
-  padding-bottom: 2px;
-  margin-top: 23.4%;
   z-index: -1;
 }
 
-as {
-  font-size: 4;
+.copyright {
+  font-size: 80%;
+  color: #e6e6e6;
+  background-color: #e27450;
+  padding-bottom: 3px;
+  text-align: left;
+  text-indent: 8%;
 }

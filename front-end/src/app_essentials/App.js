@@ -53,9 +53,11 @@ class App extends React.Component {
       <div className="container">
       {this.state.page === pages.main && (
         <div className="mainPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <h1>Ev Charge</h1>
-          <ServicesDiv user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <h1>Ev Charge</h1>
+            <ServicesDiv user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
@@ -64,36 +66,46 @@ class App extends React.Component {
       )}
       {this.state.page === pages.stats && (
         <div className="statsPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <Stats user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <Stats user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
       {this.state.page === pages.searchStations &&(
         <div className="searchStationsPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <SearchStations user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <SearchStations user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
       {this.state.page === pages.begin_charge &&(
         <div className="chargingPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <ChargeVehicle user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <ChargeVehicle user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
       {this.state.page === pages.finish_charge &&(
         <div className="finishChargingPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <FinishChargeVehicle user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <FinishChargeVehicle user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
       {this.state.page === pages.stations &&(
         <div className="stationsPage">
-          <Banner user={this.state.user} callback={this.changePage}/>
-          <StationsManage user={this.state.user} callback={this.changePage}/>
+          <div className="content">
+            <Banner user={this.state.user} callback={this.changePage}/>
+            <StationsManage user={this.state.user} callback={this.changePage}/>
+          </div>
           <Footer/>
         </div>
       )}
