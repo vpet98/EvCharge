@@ -5,6 +5,7 @@ import {showStation} from '../api_comm/api.js';
 import StationShow from './StationShow.js'
 import StationAdd from './StationAdd.js'
 import StationRemove from './StationRemove.js'
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 class StationsManage extends React.Component{
   constructor(props){
@@ -44,7 +45,8 @@ class StationsManage extends React.Component{
           }, 0)
         })
         .catch(err =>{
-          this.setState({ error: err.response.data.message });
+          let handler = new AppiErrorHandler(err);
+          this.setState({ error: handler.getError() });
         });
       }
       else{

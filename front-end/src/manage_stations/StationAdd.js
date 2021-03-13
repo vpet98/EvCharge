@@ -1,6 +1,7 @@
 import React from 'react';
 import './StationAdd.css';
 import {addStation} from '../api_comm/api.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 class StationAdd extends React.Component{
   constructor(props){
@@ -62,7 +63,8 @@ class StationAdd extends React.Component{
         }, 0)
       })
       .catch(err =>{
-        this.setState({ error: err.response.data.message });
+        let handler = new AppiErrorHandler(err);
+        this.setState({ error: handler.getError() });
       });
   }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import './ActiveSessions.css';
 import {getSessions} from '../api_comm/api.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 class ActiveSessions extends React.Component{
   constructor(props){
@@ -36,7 +37,8 @@ class ActiveSessions extends React.Component{
         }, 0)
       })
       .catch(err =>{
-        this.props.handleInput({target: {name: "error", value: err.response.data.message }});
+        let handler = new AppiErrorHandler(err);
+        this.props.handleInput({target: {name: "error", value: handler.getError() }});
       });
   }
 

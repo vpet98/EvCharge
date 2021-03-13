@@ -4,6 +4,7 @@ import {user_roles} from '../app_essentials/App.js';
 import {checkout} from '../api_comm/api.js';
 import ActiveSessions from './ActiveSessions.js';
 import Payment from './Payment.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 
 export function getDate(){
@@ -68,7 +69,8 @@ class FinishChargeVehicle extends React.Component{
         }, 0)
       })
       .catch(err =>{
-        this.setState({ error: err.response.data.message });
+        let handler = new AppiErrorHandler(err);
+        this.setState({ error: handler.getError() });
       });
   }
 

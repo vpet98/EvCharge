@@ -3,6 +3,7 @@ import './Banner.css';
 import { pages } from './App.js';
 import { postLogout } from '../api_comm/api.js';
 import M from 'materialize-css';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 // A banner component
 class Banner extends React.Component{
@@ -43,7 +44,8 @@ class Banner extends React.Component{
             }, 0)
           })
           .catch(err => {
-            alert("Got a problem while trying to logout user " + this.props.user.username + ":\n" + err.message);
+            let handler = new AppiErrorHandler(err);
+            alert("Got a problem while trying to logout user " + this.props.user.username + ":\n" + handler.getError());
           })
           .finally(() => {
             localStorage.removeItem('user');

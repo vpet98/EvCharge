@@ -3,6 +3,7 @@ import './ChargeVehicle.css';
 import {pages, user_roles} from '../app_essentials/App.js';
 import {getSessionCost, startSession} from '../api_comm/api.js';
 import Charge from './Charge.js';
+import AppiErrorHandler from '../api_comm/error_handling.js';
 
 const charging_pages = {
   main: "main",
@@ -63,7 +64,8 @@ class ChargeVehicle extends React.Component{
         }, 0)
       })
       .catch(err =>{
-        this.setState({ error: err.response.data.message });
+        let handler = new AppiErrorHandler(err);
+        this.setState({ error: handler.getError() });
       });
   }
 
@@ -91,7 +93,8 @@ class ChargeVehicle extends React.Component{
         }, 0)
       })
       .catch(err =>{
-        this.setState({ error: err.response.data.message });
+        let handler = new AppiErrorHandler(err);
+        this.setState({ error: handler.getError() });
       });
   }
 
