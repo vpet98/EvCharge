@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 
 function ChangeView({ center }) {
   const map = useMap();
@@ -32,9 +32,26 @@ function UserMarker({position, callback}){
 }
 
 export default function Map({center, zoom, stations, userPosition, changeUserPositionCallback}){
+  const markers = stations === null ? null : stations.map((station, i) => {
+    return(
+      <CircleMarker
+        key={i}
+        center={[station.Latitude, station.Longitude]}
+        radius={3}
+        color={'green'}
+      >
+        <Popup>
+          {"Operator: " + station.Operator + "\n"
+          +"Address: " + station.Address + "\n"
+          +"CostPerKWh: " + station.CostPerKWh
+          }<br />
+        </Popup>
+      </CircleMarker>
+    )});
   return(
     <div id="mapid" className="map_div" style={{height:"500px"}}>
       <MapContainer
+        preferCanvas={true}
         center={center}
         zoom={zoom}
         scrollWheelZoom={true}
@@ -46,18 +63,7 @@ export default function Map({center, zoom, stations, userPosition, changeUserPos
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <UserMarker position={userPosition} callback={changeUserPositionCallback}/>
-        {stations && (
-          stations.map(station =>
-            <Marker key={station.StationId} position={[station.Latitude, station.Longitude]}>
-              <Popup>
-                {"Operator: " + station.Operator + "\n"
-                +"Address: " + station.Address + "\n"
-                +"CostPerKWh: " + station.CostPerKWh
-                }<br />
-              </Popup>
-            </Marker>
-          )
-        )}
+        {markers}
       </MapContainer>
     </div>
   );
