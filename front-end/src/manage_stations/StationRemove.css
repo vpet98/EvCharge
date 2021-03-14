@@ -1,0 +1,9 @@
+.RemoveProcess {
+  float: left;
+  width: 45%;
+  margin-top: 2%;
+  margin-right: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}

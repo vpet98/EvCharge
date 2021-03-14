@@ -1,0 +1,20 @@
+footer {
+  position: relative;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: DarkSalmon;
+  color: white;
+  text-align: center;
+  padding-top: 3px;
+  z-index: -1;
+}
+
+.copyright {
+  font-size: 80%;
+  color: #e6e6e6;
+  background-color: #e27450;
+  padding-bottom: 3px;
+  text-align: left;
+  text-indent: 8%;
+}

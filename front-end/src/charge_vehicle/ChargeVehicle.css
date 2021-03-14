@@ -1,0 +1,27 @@
+select {
+    font-size: .9rem;
+    padding: 2px 5px;
+}
+
+.ChargingStates {
+  position: relative;
+}
+
+.SuccessfulChargingPage {
+  float: left;
+  width: 60%;
+  margin-left: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}
+
+
+.details {
+  float: left;
+  width: 100%;
+  margin-bottom: 2%;
+  border-radius: 10px;
+  background-color: #f2f2f2;
+  text-align: center;
+}

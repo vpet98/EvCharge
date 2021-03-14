@@ -1,0 +1,9 @@
+.AddStationInfo {
+  float: left;
+  width: 45%;
+  margin-right: 2%;
+  margin-top: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}

@@ -1,0 +1,14 @@
+.Sessions {
+  float: left;
+  width: 100%;
+  margin-top: 2%;
+  margin-right: 2%;
+  margin-bottom: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 20px;
+}
+
+.btn_refresh {
+  margin-left: 80%;
+}

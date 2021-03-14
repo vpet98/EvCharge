@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import org.killercarrots.evcharge.repos.ChargeEventsRepository;
 import org.killercarrots.evcharge.repos.RoleRepository;
@@ -48,6 +49,16 @@ import org.springframework.security.core.Authentication;
 
 import org.killercarrots.evcharge.errorHandling.*;
 import org.killercarrots.evcharge.models.*;
+
+//K
+import static spark.Spark.get;
+import static spark.Spark.post;
+import static spark.Spark.port;
+import static spark.Spark.staticFiles;
+//import com.google.gson.Gson;
+import com.stripe.Stripe;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 
 // Spring boot seems to not register both controllers
 // so we set this one to RestController as a workaround
@@ -450,6 +461,11 @@ public class GeneralController {
     activeSession.setProtocol(protocol);
     double kWhRequested = Double.parseDouble(cost) / station.getCost();
     DecimalFormat df = new DecimalFormat("0.00");
+
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+    dfs.setDecimalSeparator('.');
+    df.setDecimalFormatSymbols(dfs);
+
     df.setRoundingMode(RoundingMode.DOWN);
     kWhRequested = Double.parseDouble(df.format(kWhRequested));
     // get vehicle's battery size, if requested amount exceeds battery size adjust request to battery size amount
@@ -581,6 +597,11 @@ public class GeneralController {
       if (currentCost / station.getCost() > s.getKWhRequested())
         currentCost = station.getCost() * s.getKWhRequested();
       DecimalFormat df = new DecimalFormat("0.00");
+      //K
+      DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+      dfs.setDecimalSeparator('.');
+      df.setDecimalFormatSymbols(dfs);
+
       currentCost = Double.parseDouble(df.format(currentCost));
       // put to map
       map.put(s.getId(), currentCost);
@@ -642,6 +663,11 @@ public class GeneralController {
       kWhDelivered = vehicleRepository.findById(session.getVehicleId()).get().getBatterySize();
     double sessionCost = kWhDelivered * session.getCostPerKWh();
     DecimalFormat df = new DecimalFormat("0.00");
+    //K
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+    dfs.setDecimalSeparator('.');
+    df.setDecimalFormatSymbols(dfs);
+
     kWhDelivered = Double.parseDouble(df.format(kWhDelivered));
     sessionCost = Double.parseDouble(df.format(sessionCost));
     chargeEvent.setKWhDelivered(kWhDelivered);
@@ -654,6 +680,7 @@ public class GeneralController {
     catch (Exception e) {
       return buildResponse(new MessageResponse("Failed to close charging session", "status"), format);
     }
+
     return buildResponse(new MessageResponse(
         "Charging completed successfully! Total cost is "+Double.toString(sessionCost)+"€", "status"), format);
   }
@@ -704,6 +731,7 @@ public class GeneralController {
     }
 
     return buildResponse(new OperatorStationsResponse(stations), format);
+
   }
 
   // add new station

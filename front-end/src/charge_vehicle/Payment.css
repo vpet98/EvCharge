@@ -1,0 +1,38 @@
+.Payment {
+  float: left;
+  width: 100%;
+  margin-bottom: 2%;
+  border-radius: 20px;
+  background-color: #ffebcd;
+  padding: 50px;
+}
+
+.Payment button.btn_pay {
+  background-color: #ccc;
+  float: left;
+  width: 50%;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  transition: 0.3s;
+}
+
+.Payment button.btn_pay:focus {
+  background-color: #ffebcd;
+}
+
+.Cash {
+  position: relative;
+  top: 10px;
+}
+
+.CreditCard {
+  position: relative;
+  top: 10px;
+}
+
+.CreditCard {
+  position: relative;
+  top: 50px;
+}
