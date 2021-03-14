@@ -32,7 +32,7 @@ public class PointSessionsResponse extends MyAbstractObj {
         PointSessionElement p;
         for(ChargeEvent e : ls) {
             index++;
-            p = new PointSessionElement(index, e.getPointId(), e.getStartTime(), e.getEndTime(), e.getProtocol(), e.getKWhDelivered());
+            p = new PointSessionElement(index, e.getEventId(), e.getStartTime(), e.getEndTime(), e.getProtocol(), e.getKWhDelivered());
             this.sessions.add(p);
         }
         this.sessionsNum = index;
@@ -61,5 +61,5 @@ public class PointSessionsResponse extends MyAbstractObj {
         ret = ret + sessions.toString() + "}";
         return ret;
     }
-    
+
 }
