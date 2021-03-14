@@ -38,7 +38,11 @@ class ActiveSessions extends React.Component{
       })
       .catch(err =>{
         let handler = new AppiErrorHandler(err);
-        this.props.handleInput({target: {name: "error", value: handler.getError() }});
+        let txt = handler.getMessage();
+        if(txt !== null){
+          if(handler.getError() !== null) txt = txt + '\n' + handler.getError();
+        }else txt = handler.getError();
+        this.props.handleInput({target: {name: "error", value: txt }});
       });
   }
 

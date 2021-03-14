@@ -65,7 +65,11 @@ class ChargeVehicle extends React.Component{
       })
       .catch(err =>{
         let handler = new AppiErrorHandler(err);
-        this.setState({ error: handler.getError() });
+        let txt = handler.getMessage();
+        if(txt !== null){
+          if(handler.getError() !== null) txt = txt + '\n' + handler.getError();
+        }else txt = handler.getError();
+        this.setState({ error: txt });
       });
   }
 
@@ -94,7 +98,11 @@ class ChargeVehicle extends React.Component{
       })
       .catch(err =>{
         let handler = new AppiErrorHandler(err);
-        this.setState({ error: handler.getError() });
+        let txt = handler.getMessage();
+        if(txt !== null){
+          if(handler.getError() !== null) txt = txt + '\n' + handler.getError();
+        }else txt = handler.getError();
+        this.setState({ error: txt });
       });
   }
 
