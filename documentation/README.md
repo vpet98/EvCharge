@@ -1,12 +1,14 @@
 # Documentation
 
-Ενδεικτικά περιεχόμενα:
+## Περιεχόμενα:
 
-- Διαγράμματα UML Activity (in ONE vpp file).
-- Διαγράμματα UML Class (in ONE vpp file).
-- Διαγράμματα UML Component (in ONE vpp file).
-- Διαγράμματα UML Deployment (in ONE vpp file).
-- Διαγράμματα UML Sequence (in ONE vpp file).
-- Διαγράμματα ER.
-- Εγγραφο SRS - Software Requirements Specification.
-- Εγγραφο StRS - Stakeholders Requirements Specification.
+- Διαγράμματα UML (**diagrams_final.vpp**)
+  * Activity diagrams
+  * Sequence diagrams
+  * Deployment diagram
+  * Component diagram
+  * Class diagram
+- Σχήμα της βάσης, αντίστοιχο του ER, για NoSQL (**database_schema.pdf**)
+- Εγγραφο SRS - Software Requirements Specification (**SRS_2020.docx**)
+- Εγγραφα StRS - Stakeholders Requirements Specification (**StRS**)
+- Εκφώνηση εργασίας και προδιαγραφές API, CLI (**project**)

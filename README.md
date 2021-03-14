@@ -73,7 +73,11 @@
    ```sh
    cd back-end/evcharge
    ./gradlew bootrun
-   cd ../../front-end
+   ```
+   > Από ένα νέο terminal:
+
+   ```sh
+   cd front-end
    npm start
    ```
 
