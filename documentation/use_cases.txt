@@ -1,0 +1,64 @@
+use cases
+
+1) έναρξη γεγονότος φόρτισης
+
+	/.../SessionCost/:vehicleId/:stationId_pointId
+
+	{protocol, cost/kWh}
+	
+
+	/.../StartSessionCost/:vehicleId/:stationId_pointId/:cost
+	/.../StartSessionAmount/:vehicleId/:stationId_pointId/:amount
+	
+	response:
+	STATUS: OK
+	{sessionId}
+
+
+2) ολοκλήρωση και πληρωμή φόρτισης
+
+	/.../ActiveSession
+	
+	response:
+	{list of {sessionId, currentCost}}
+
+	/.../CheckOut/:sessionId?end=endTimestamp
+	
+	response:
+	STATUS: OK
+
+
+3) στατιστική μελέτη γεγονότων φόρτισης
+
+	στις προδιαγραφές
+
+
+4) αναζήτηση κοντινών σταθμών φόρτισης
+
+	/.../StationsNearby/:lat/:lon/:radius
+	
+	response
+	{
+		stationId:
+		operator:
+		latitude:
+		longitude:
+		price: €/kWh
+	}
+	
+5) προσθήκη/αφαίρεση/διαχείρηση σταθμών φόρτισης παρόχου
+
+	/.../Operator/StationShow/:ProviderId
+	{ [station ids] }
+
+	/.../Operator/StationAdd
+	
+	parameters
+	{location, [{currentType, port, power}]}
+	
+	response
+	STATUS: OK
+	
+	/.../Operator/StationRemove/:StationId
+	
+	STATUS: OK
